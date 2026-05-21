@@ -16,10 +16,8 @@ jobs:
     name: "Scraping & Alertas"
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     permissions:
       contents: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,19 +37,14 @@ jobs:
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          EMAIL_TO:   ${{ secrets.EMAIL_TO }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python main.py
+
+      - name: Commit price data
         run: |
-          ARGS=""
-          if [ "${{ github.event.inputs.force_email }}" = "true" ]; then
-            ARGS="--force-email"
-          fi
-          python main.py $ARGS
-- name: Commit price data
-        run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p data
           git add data/
-          git diff --staged --quiet || git commit -m "📊 Precios actualizados $(date +'%Y-%m-%d')"
+          git diff --staged --quiet || git commit -m "Precios actualizados $(date +'%Y-%m-%d')"
           git push
-      
