@@ -45,7 +45,7 @@ jobs:
           if [ "${{ github.event.inputs.force_email }}" = "true" ]; then
             ARGS="--force-email"
           fi
-          python src/main.py $ARGS
+          python main.py $ARGS
 
       - name: Commit price data
         run: |
