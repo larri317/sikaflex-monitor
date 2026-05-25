@@ -44,7 +44,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p data
-          git add -A || true
+          find . -name "*.xlsx" -o -name "prices.csv" | xargs git add -f 2>/dev/null || true
+          git add -f prices.csv precios_sikaflex.xlsx 2>/dev/null || true
           git diff --staged --quiet || git commit -m "📊 Precios actualizados $(date +'%Y-%m-%d')"
           git push
