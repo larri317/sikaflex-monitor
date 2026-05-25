@@ -1,6 +1,6 @@
 """
 Sikaflex Price Monitor - Scraper
-Busca precios de Sikaflex 522 y 621 Purform en tiendas online españolas.
+Busca precios de Sikaflex 522, 554 y 621 en tiendas online.
 """
 
 import requests
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class PriceResult:
     store: str
     url: str
-    product: str          # "522" o "621"
+    product: str
     price: float
     currency: str = "EUR"
     available: bool = True
@@ -33,97 +33,183 @@ HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 }
 
-# ─────────────────────────────────────────────────────────────
-# TIENDAS CONFIGURADAS
-# Añade o elimina tiendas aquí. Cada entrada tiene:
-#   - store:   nombre visible
-#   - url:     página del producto
-#   - product: "522" o "621"
-#   - selectors: lista de selectores CSS a probar (el primero que funcione)
-#   - pattern:   regex alternativo si los selectores fallan
-# ─────────────────────────────────────────────────────────────
 STORES = [
     # ── Sikaflex 522 ──────────────────────────────────────────
     {
-        "store": "TodoCampers",
-        "url": "https://todocampers.com/es/5039-sikaflex-522-negro-7612895733593.html",
+        "store": "Andorra Campers",
+        "url": "https://www.andorracampers.com/es/sikaflex-522-blanca_3485_342.html",
+        "product": "522",
+        "selectors": [
+            "span[itemprop='price']",
+            ".price",
+            ".product-price",
+            "[data-price]",
+        ],
+    },
+    {
+        "store": "Barna Campers",
+        "url": "https://barnacampers.es/Sikaflex-52-BLANCO",
+        "product": "522",
+        "selectors": [
+            "span[itemprop='price']",
+            ".price",
+            ".our_price_display",
+            "#our_price_display",
+        ],
+    },
+    {
+        "store": "Madrid Camper 522",
+        "url": "https://madridcamper.com/selladores-y-adhesivos/9522-sikaflex-522-blanco.html",
         "product": "522",
         "selectors": [
             "span.current-price span[itemprop='price']",
-            "span.price",
-            ".product-price",
-        ],
-    },
-    {
-        "store": "Berger Camping",
-        "url": "https://www.berger-camping.es/producto/sellador-adhesivo-sika-sikaflex-522-217185",
-        "product": "522",
-        "selectors": [
-            ".price--current",
-            "[data-price]",
-            ".product__price",
-        ],
-    },
-    {
-        "store": "SVB Marine ES",
-        "url": "https://www.svb-marine.es/es/sika-sikaflex-sellador-y-adhesivo-522.html",
-        "product": "522",
-        "selectors": [
-            ".product-price .current",
-            "span.price",
-            "[itemprop='price']",
-        ],
-    },
-    {
-        "store": "Mi Tortuga",
-        "url": "https://www.mitortuga.es/productos/sikaflex-522-blanco-sellador-polimero-cartucho-300ml-especial-caravanas-autocaravanas-ref",
-        "product": "522",
-        "selectors": [
-            ".price",
-            "[itemprop='price']",
-            ".product-price",
-        ],
-    },
-    {
-        "store": "Madrid Camper",
-        "url": "https://madridcamper.com/selladores-y-adhesivos/9523-sikaflex-522-negro.html",
-        "product": "522",
-        "selectors": [
             "span.current-price",
             "[itemprop='price']",
             ".price",
         ],
     },
     {
-        "store": "Obelink ES",
-        "url": "https://www.obelink.es/sikaflex-522-kit-sellador-adhesivo-hibrido-white-628399.html",
+        "store": "ManoMano 522",
+        "url": "https://www.manomano.es/cat/sikaflex+522",
         "product": "522",
+        "selectors": [
+            "[data-testid='price']",
+            ".price",
+            "span.price",
+            "[itemprop='price']",
+        ],
+    },
+    {
+        "store": "Amazon ES 522",
+        "url": "https://www.amazon.es/SIKA-522-LAMINA-BLANCO/dp/B08BZCXQCH",
+        "product": "522",
+        "selectors": [
+            "span.a-price-whole",
+            "#priceblock_ourprice",
+            "#priceblock_dealprice",
+            "span.a-offscreen",
+            ".a-price .a-offscreen",
+        ],
+    },
+
+    # ── Sikaflex 554 ──────────────────────────────────────────
+    {
+        "store": "Amazon ES 554",
+        "url": "https://www.amazon.es/Sika-Flex-554-Adhesivo-resistente-intemperie/dp/B09N7FFXS7",
+        "product": "554",
+        "selectors": [
+            "span.a-price-whole",
+            "#priceblock_ourprice",
+            "#priceblock_dealprice",
+            "span.a-offscreen",
+            ".a-price .a-offscreen",
+        ],
+    },
+    {
+        "store": "Leroy Merlin 554",
+        "url": "https://www.leroymerlin.es/productos/sika-colle-de-montage-stp-flex-554-noir-300-ml-92946865.html",
+        "product": "554",
+        "selectors": [
+            "[data-testid='price']",
+            ".price__amount",
+            "span.price",
+            "[itemprop='price']",
+        ],
+    },
+    {
+        "store": "ManoMano 554",
+        "url": "https://www.manomano.es/p/pegamento-de-montaje-sika-sikaflex-554-negro-300-ml-56632474",
+        "product": "554",
+        "selectors": [
+            "[data-testid='price']",
+            ".price",
+            "span.price",
+            "[itemprop='price']",
+        ],
+    },
+    {
+        "store": "Intercut 554",
+        "url": "https://intercut.es/products/sikaflex-554-300-ml-2284",
+        "product": "554",
+        "selectors": [
+            ".price__current",
+            "span.price",
+            "[itemprop='price']",
+            ".product__price",
+        ],
+    },
+    {
+        "store": "Obelink 554",
+        "url": "https://www.obelink.es/sikaflex-554-kit-de-montaje-black-628401.html",
+        "product": "554",
         "selectors": [
             ".price--current",
             "[data-price-amount]",
-            ".product-single__price",
+            "span.price",
+            "[itemprop='price']",
+        ],
+    },
+    {
+        "store": "TodoCampers 554",
+        "url": "https://todocampers.com/es/5041-sikaflex-554-negro-7612895736495.html",
+        "product": "554",
+        "selectors": [
+            "span.current-price span[itemprop='price']",
+            "span.current-price",
+            "[itemprop='price']",
+            ".price",
+        ],
+    },
+    {
+        "store": "Berger Camping 554",
+        "url": "https://www.berger-camping.es/producto/adhesivo-de-montaje-sikaflex-554-sika-217196",
+        "product": "554",
+        "selectors": [
+            ".price--current",
+            "[data-price]",
+            ".product__price",
+            "span.price",
+        ],
+    },
+    {
+        "store": "Madrid Camper 554",
+        "url": "https://madridcamper.com/selladores-y-adhesivos/9519-sikaflex-554-negro.html",
+        "product": "554",
+        "selectors": [
+            "span.current-price span[itemprop='price']",
+            "span.current-price",
+            "[itemprop='price']",
+            ".price",
         ],
     },
 
     # ── Sikaflex 621 Purform ──────────────────────────────────
-    # NOTA: el 621 es más nuevo; añade URLs cuando encuentres tiendas.
-    # Las URLs de ejemplo abajo deben verificarse y actualizarse.
     {
-        "store": "Sika ES Oficial",
-        "url": "https://esp.sika.com/es/industria/transporte/selladores/selladores-exteriores/sikaflex-621-purform.html",
+        "store": "Toolstock 621",
+        "url": "https://www.toolstock.info/principal/10201-SIKAFLEX-621CARTCH300CM3-NEGRO",
         "product": "621",
         "selectors": [
-            ".price",
             "[itemprop='price']",
+            ".price",
             ".product-price",
+            "span.price",
+        ],
+    },
+    {
+        "store": "Plana Online 621",
+        "url": "https://planaonline.com/es/nautica-y-marina/sikaflex-621.html",
+        "product": "621",
+        "selectors": [
+            "[itemprop='price']",
+            ".price",
+            ".product-price",
+            "span.price",
         ],
     },
 ]
 
 
 def _extract_price_from_text(text: str) -> Optional[float]:
-    """Extrae el primer precio numérico de un texto."""
-    # Cubre formatos: 12,50 € / €12.50 / 12.50€ / 12,50
     patterns = [
         r"(\d{1,4}[.,]\d{2})\s*€",
         r"€\s*(\d{1,4}[.,]\d{2})",
@@ -134,14 +220,15 @@ def _extract_price_from_text(text: str) -> Optional[float]:
         if m:
             raw = m.group(1).replace(".", "").replace(",", ".")
             try:
-                return float(raw)
+                val = float(raw)
+                if 1 < val < 500:  # rango razonable para estos productos
+                    return val
             except ValueError:
                 continue
     return None
 
 
 def _fetch_html(url: str, retries: int = 3) -> Optional[str]:
-    """Descarga el HTML de una URL con reintentos y backoff."""
     for attempt in range(retries):
         try:
             resp = requests.get(url, headers=HEADERS, timeout=20)
@@ -150,12 +237,11 @@ def _fetch_html(url: str, retries: int = 3) -> Optional[str]:
             logger.warning(f"HTTP {resp.status_code} en {url}")
         except requests.RequestException as e:
             logger.warning(f"Intento {attempt+1} fallido para {url}: {e}")
-        time.sleep(random.uniform(2, 5))  # pausa educada entre reintentos
+        time.sleep(random.uniform(2, 5))
     return None
 
 
 def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
-    """Extrae el precio de una tienda usando la configuración dada."""
     html = _fetch_html(store_cfg["url"])
     if not html:
         logger.error(f"No se pudo descargar {store_cfg['store']}")
@@ -163,15 +249,13 @@ def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
 
     soup = BeautifulSoup(html, "html.parser")
 
-    # 1) Probar selectores CSS en orden
     for selector in store_cfg.get("selectors", []):
         el = soup.select_one(selector)
         if el:
-            # Intentar atributo 'content' primero (microdatos), luego texto
-            raw = el.get("content") or el.get_text()
+            raw = el.get("content") or el.get("data-price") or el.get_text()
             price = _extract_price_from_text(raw)
-            if price and price > 0:
-                logger.info(f"✓ {store_cfg['store']} [{store_cfg['product']}] → {price}€  (selector: {selector})")
+            if price:
+                logger.info(f"✓ {store_cfg['store']} [{store_cfg['product']}] → {price}€")
                 return PriceResult(
                     store=store_cfg["store"],
                     url=store_cfg["url"],
@@ -179,11 +263,11 @@ def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
                     price=price,
                 )
 
-    # 2) Fallback: buscar en todo el texto de la página
+    # Fallback texto completo
     full_text = soup.get_text()
     price = _extract_price_from_text(full_text)
-    if price and price > 0:
-        logger.info(f"✓ {store_cfg['store']} [{store_cfg['product']}] → {price}€  (fallback texto)")
+    if price:
+        logger.info(f"✓ {store_cfg['store']} [{store_cfg['product']}] → {price}€ (fallback)")
         return PriceResult(
             store=store_cfg["store"],
             url=store_cfg["url"],
@@ -196,11 +280,10 @@ def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
 
 
 def scrape_all(delay_seconds: float = 2.0) -> list[PriceResult]:
-    """Scrape todas las tiendas configuradas."""
     results = []
     for cfg in STORES:
         result = scrape_store(cfg)
         if result:
             results.append(result)
-        time.sleep(delay_seconds + random.uniform(0, 1.5))  # cortesía
+        time.sleep(delay_seconds + random.uniform(0, 1.5))
     return results
