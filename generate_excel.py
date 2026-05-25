@@ -19,7 +19,7 @@ try:
 except ImportError:
     raise ImportError("Instala openpyxl: pip install openpyxl")
 
-DATA_DIR  = Path(__file__).parent
+DATA_DIR  = Path.cwd()
 PRICES_CSV = DATA_DIR / "prices.csv"
 EXCEL_OUT  = DATA_DIR / "precios_sikaflex.xlsx"
 
