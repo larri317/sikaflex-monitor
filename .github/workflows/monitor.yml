@@ -4,12 +4,6 @@ on:
   schedule:
     - cron: "0 7 * * *"
   workflow_dispatch:
-    inputs:
-      force_email:
-        description: "Enviar email aunque no haya alertas"
-        required: false
-        default: "false"
-        type: boolean
 
 jobs:
   monitor:
@@ -40,11 +34,17 @@ jobs:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
         run: python main.py --force-email
 
+      - name: Buscar archivos generados
+        run: |
+          echo "=== Directorio actual ==="
+          pwd
+          echo "=== Todos los archivos ==="
+          find . -name "*.xlsx" -o -name "prices.csv" 2>/dev/null
+
       - name: Commit data and Excel
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          find . -name "*.xlsx" -o -name "prices.csv" | xargs git add -f 2>/dev/null || true
-          git add -f prices.csv precios_sikaflex.xlsx 2>/dev/null || true
+          git add -A
           git diff --staged --quiet || git commit -m "📊 Precios actualizados $(date +'%Y-%m-%d')"
           git push
