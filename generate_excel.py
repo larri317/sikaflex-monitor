@@ -242,7 +242,7 @@ def _sheet_product(wb, rows, product):
         c = ws.cell(row=2, column=col, value=d)
         c.font = Font(bold=True, color=WHITE, size=9)
         c.fill = _header_fill(color)
-        c.alignment = Alignment(horizontal="center", rotation=45)
+        c.alignment = Alignment(horizontal="center")
         c.border = _border()
 
     # Construir lookup {(date, store): price}
