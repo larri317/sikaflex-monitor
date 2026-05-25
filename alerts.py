@@ -14,7 +14,7 @@ from database import get_historical_average, get_store_yesterday_price
 logger = logging.getLogger(__name__)
 
 ALERT_THRESHOLD = 0.10   # 10% de subida dispara la alerta
-PRODUCTS = ["522", "621"]
+PRODUCTS = ["522", "554", "621"]
 
 
 @dataclass
