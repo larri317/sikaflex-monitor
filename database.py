@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Optional
 from scraper import PriceResult
 
-DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR = Path("/home/runner/work/sikaflex-monitor/sikaflex-monitor")
 PRICES_FILE = DATA_DIR / "prices.csv"
 FIELDNAMES = ["date", "store", "product", "price", "url"]
 
