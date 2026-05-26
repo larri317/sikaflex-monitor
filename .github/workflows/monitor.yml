@@ -9,7 +9,7 @@ jobs:
   monitor:
     name: "Scraping & Alertas"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
@@ -35,11 +35,7 @@ jobs:
         run: python main.py --force-email
 
       - name: Buscar archivos generados
-        run: |
-          echo "=== Directorio actual ==="
-          pwd
-          echo "=== Todos los archivos ==="
-          find . -name "*.xlsx" -o -name "prices.csv" 2>/dev/null
+        run: find . -name "*.xlsx" -o -name "prices.csv" 2>/dev/null || true
 
       - name: Commit data and Excel
         run: |
