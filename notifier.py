@@ -258,7 +258,8 @@ def send_report(summary: dict, force_send: bool = False):
     msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
     msg["From"]    = SMTP_USER
-    msg["To"]      = EMAIL_TO
+    recipients = [e.strip() for e in EMAIL_TO.split(",")]
+msg["To"] = ", ".join(recipients)
 
     # Cuerpo HTML
     msg.attach(MIMEText(html_body, "html", "utf-8"))
@@ -286,7 +287,7 @@ def send_report(summary: dict, force_send: bool = False):
             server.ehlo()
             server.starttls()
             server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(SMTP_USER, EMAIL_TO, msg.as_string())
+            server.sendmail(SMTP_USER, recipients, msg.as_string())
         print(f"📧 Email enviado a {EMAIL_TO} — Asunto: {subject}")
     except Exception as e:
         logger.error(f"❌ Error enviando email: {e}")
