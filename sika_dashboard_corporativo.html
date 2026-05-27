@@ -14,7 +14,7 @@
     --text:#1A1A1A;--muted:#7C7C7C;--red:#dc2626;--green:#16a34a;
     --sika:#FCC500;--teroson:#2563EB;--soudal:#16a34a;--quiadsa:#7C3AED;
     --p522:#FCC500;--p554:#77BCB2;--p621:#000;
-    --pT930:#2563EB;--pT939:#60A5FA;--pSF45:#16a34a;--pSS240:#4ADE80;--pQT:#7C3AED;
+    --pT930:#2563EB;--pT939:#60A5FA;--pSF45:#16a34a;--pSS240:#4ADE80;--pQT:#7C3AED;--pSP101:#DC2626;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -106,12 +106,14 @@
   .tag-SF45{background:#16a34a;color:#fff;}
   .tag-SS240{background:#4ADE80;color:#000;}
   .tag-QT{background:#7C3AED;color:#fff;}
+  .tag-SP101{background:#DC2626;color:#fff;}
 
   .brand-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
   .pill-Sika{background:rgba(252,197,0,.15);color:#92700a;}
   .pill-Teroson{background:rgba(37,99,235,.1);color:#1d4ed8;}
   .pill-Soudal{background:rgba(22,163,74,.1);color:#15803d;}
   .pill-Quiadsa{background:rgba(124,58,237,.1);color:#6d28d9;}
+  .pill-Pattex{background:rgba(220,38,38,.1);color:#b91c1c;}
 
   .bar-list{display:flex;flex-direction:column;gap:12px;}
   .bar-meta{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
@@ -138,6 +140,7 @@
   .filter-btn.fSF45{border-color:#16a34a;background:#16a34a;color:#fff;}
   .filter-btn.fSS240{border-color:#4ADE80;background:#4ADE80;color:#000;}
   .filter-btn.fQT{border-color:#7C3AED;background:#7C3AED;color:#fff;}
+  .filter-btn.fSP101{border-color:#DC2626;background:#DC2626;color:#fff;}
 
   .chart-container{position:relative;}
   .toast{position:fixed;bottom:24px;right:24px;background:#000;color:#fff;border-radius:10px;padding:14px 20px;font-size:13px;z-index:999;animation:slideUp .3s ease;box-shadow:0 8px 32px rgba(0,0,0,.2);border-left:3px solid var(--yellow);}
@@ -193,6 +196,7 @@
     <div class="nav-item" onclick="setEvoFilter('SF45')"><div class="nav-dot" style="background:#16a34a"></div>Soudaflex 45 FC</div>
     <div class="nav-item" onclick="setEvoFilter('SS240')"><div class="nav-dot" style="background:#4ADE80"></div>Soudaseal 240 FC</div>
     <div class="nav-item" onclick="setEvoFilter('QT')"><div class="nav-dot" style="background:#7C3AED"></div>Quiadsa Turbo</div>
+    <div class="nav-item" onclick="setEvoFilter('SP101')"><div class="nav-dot" style="background:#DC2626"></div>Pattex SP 101</div>
   </div>
   <div class="sidebar-footer">
     <div><span class="status-dot"></span><span class="status-text" id="lastUpdateText">Cargando...</span></div>
@@ -308,6 +312,16 @@
             <div id="sikaVsSoudal"></div>
           </div>
         </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><span class="card-title">🟡 Sika vs 🔴 Pattex</span></div>
+            <div id="sikaVsPattex"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">🟡 Sika vs ⚫ Quiadsa</span></div>
+            <div id="sikaVsQuiadsa"></div>
+          </div>
+        </div>
         <div class="card">
           <div class="card-header"><span class="card-title">Posicionamiento de precio · Sika vs Mercado</span></div>
           <div id="marketPosition"></div>
@@ -331,6 +345,7 @@
           <button class="filter-btn" id="ef-SF45" onclick="setEvoFilter('SF45')">SF45</button>
           <button class="filter-btn" id="ef-SS240" onclick="setEvoFilter('SS240')">SS240</button>
           <button class="filter-btn" id="ef-QT" onclick="setEvoFilter('QT')">QT</button>
+          <button class="filter-btn" id="ef-SP101" onclick="setEvoFilter('SP101')">SP101</button>
         </div>
         <div class="card">
           <div class="card-header"><span class="card-title">Evolución del precio medio diario</span><span class="card-badge" id="evoDays">—</span></div>
@@ -365,20 +380,21 @@ const CSV_URL = 'https://raw.githubusercontent.com/larri317/sikaflex-monitor/mai
 const PRODUCT_NAMES = {
   '522':'Sikaflex® 522','554':'Sikaflex® 554','621':'Sikaflex® 621',
   'T930':'Teroson MS 930','T939':'Teroson MS 939',
-  'SF45':'Soudaflex 45 FC','SS240':'Soudaseal 240 FC','QT':'Quiadsa Turbo'
+  'SF45':'Soudaflex 45 FC','SS240':'Soudaseal 240 FC','QT':'Quiadsa Turbo',
+  'SP101':'Pattex SP 101'
 };
 const PRODUCT_BRANDS = {
   '522':'Sika','554':'Sika','621':'Sika',
   'T930':'Teroson','T939':'Teroson',
-  'SF45':'Soudal','SS240':'Soudal','QT':'Quiadsa'
+  'SF45':'Soudal','SS240':'Soudal','QT':'Quiadsa','SP101':'Pattex'
 };
 const PRODUCT_COLORS = {
   '522':'#E6B000','554':'#77BCB2','621':'#333',
-  'T930':'#2563EB','T939':'#60A5FA','SF45':'#16a34a','SS240':'#4ADE80','QT':'#7C3AED'
+  'T930':'#2563EB','T939':'#60A5FA','SF45':'#16a34a','SS240':'#4ADE80','QT':'#7C3AED','SP101':'#DC2626'
 };
-const BRAND_COLORS = {'Sika':'#E6B000','Teroson':'#2563EB','Soudal':'#16a34a','Quiadsa':'#7C3AED'};
+const BRAND_COLORS = {'Sika':'#E6B000','Teroson':'#2563EB','Soudal':'#16a34a','Quiadsa':'#7C3AED','Pattex':'#DC2626'};
 const SIKA_PRODUCTS = ['522','554','621'];
-const COMP_PRODUCTS = ['T930','T939','SF45','SS240','QT'];
+const COMP_PRODUCTS = ['T930','T939','SF45','SS240','QT','SP101'];
 const ALL_PRODUCTS  = [...SIKA_PRODUCTS,...COMP_PRODUCTS];
 
 let allData=[], charts={}, evoFilter='all';
@@ -553,7 +569,7 @@ function renderSikaLine(){
 
 function renderBrandKpis(){
   const today=todayData();
-  document.getElementById('brandKpis').innerHTML=['Teroson','Soudal','Quiadsa'].map(brand=>{
+  document.getElementById('brandKpis').innerHTML=['Teroson','Soudal','Quiadsa','Pattex'].map(brand=>{
     const prods=COMP_PRODUCTS.filter(p=>PRODUCT_BRANDS[p]===brand);
     const prices=today.filter(r=>prods.includes(r.product)).map(r=>r.price);
     const a=prices.length?avg(prices):null;
@@ -583,7 +599,7 @@ function renderCompTable(){
 
 function renderCompDonut(){
   const today=todayData();
-  const brands=['Teroson','Soudal','Quiadsa'];
+  const brands=['Teroson','Soudal','Quiadsa','Pattex'];
   const counts=brands.map(b=>today.filter(r=>PRODUCT_BRANDS[r.product]===b).length);
   destroyChart('compDonut');
   charts.compDonut=new Chart(document.getElementById('compDonut').getContext('2d'),{
@@ -623,6 +639,8 @@ function renderVsCards(){
   }
   document.getElementById('sikaVsTeroson').innerHTML=vsHtml(SIKA_PRODUCTS,['T930','T939']);
   document.getElementById('sikaVsSoudal').innerHTML=vsHtml(SIKA_PRODUCTS,['SF45','SS240']);
+  document.getElementById('sikaVsPattex').innerHTML=vsHtml(SIKA_PRODUCTS,['SP101']);
+  document.getElementById('sikaVsQuiadsa').innerHTML=vsHtml(SIKA_PRODUCTS,['QT']);
 }
 
 function renderMarketPosition(){
