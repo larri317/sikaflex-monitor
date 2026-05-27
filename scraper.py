@@ -1,7 +1,7 @@
 """
 Sikaflex Price Monitor - Scraper
 Productos Sika: 522, 554, 621
-Productos competencia: T930, T939, SF45, SS240, QT
+Productos competencia: T930, T939, SF45, SS240, QT, SP101
 """
 
 import requests
@@ -38,10 +38,8 @@ HEADERS = {
 STORES = [
 
     # ════════════════════════════════════════════
-    # SIKA — Productos propios
+    # SIKA
     # ════════════════════════════════════════════
-
-    # ── Sikaflex 522 ──────────────────────────
     {
         "store": "Andorra Campers",
         "url": "https://www.andorracampers.com/es/sikaflex-522-blanca_3485_342.html",
@@ -66,8 +64,6 @@ STORES = [
         "product": "522", "brand": "Sika",
         "selectors": [".price--current","[data-price-amount]","span.price"],
     },
-
-    # ── Sikaflex 554 ──────────────────────────
     {
         "store": "Intercut 554",
         "url": "https://intercut.es/products/sikaflex-554-300-ml-2284",
@@ -98,8 +94,6 @@ STORES = [
         "product": "554", "brand": "Sika",
         "selectors": ["span.current-price span[itemprop='price']","span.current-price","[itemprop='price']"],
     },
-
-    # ── Sikaflex 621 ──────────────────────────
     {
         "store": "Toolstock 621",
         "url": "https://www.toolstock.info/principal/10201-SIKAFLEX-621CARTCH300CM3-NEGRO",
@@ -114,10 +108,8 @@ STORES = [
     },
 
     # ════════════════════════════════════════════
-    # COMPETENCIA — Teroson (Henkel)
+    # TEROSON
     # ════════════════════════════════════════════
-
-    # ── Teroson MS 930 ────────────────────────
     {
         "store": "MasQueCamper T930",
         "url": "https://www.masquecamper.com/producto/sellador-negro-terostat-ms-930-310-ml/",
@@ -125,149 +117,129 @@ STORES = [
         "selectors": [".price","[itemprop='price']",".woocommerce-Price-amount","span.amount"],
     },
     {
-        "store": "RS Online T930",
-        "url": "https://es.rs-online.com/web/p/selladores/2537845",
-        "product": "T930", "brand": "Teroson",
-        "selectors": ["[data-testid='price-display']",".price-display","[itemprop='price']",".price"],
-    },
-    {
         "store": "Intercut T930",
         "url": "https://intercut.es/products/teroson-ms-930-310ml-sellador-blanco-712",
         "product": "T930", "brand": "Teroson",
-        "selectors": [".price__current","span.price","[itemprop='price']",".product__price"],
+        "selectors": [".price__current","span.price","[itemprop='price']"],
     },
     {
         "store": "General Adhesivos T930",
         "url": "https://www.generaladhesivos.com/comprar-pegamento-teroson-ms-930-blanco-570ml-380",
         "product": "T930", "brand": "Teroson",
-        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
-    },
-    {
-        "store": "Sparex T930",
-        "url": "https://es.sparex.com/teroson-ms-930-sellador-flexible-310ml-105353.html",
-        "product": "T930", "brand": "Teroson",
         "selectors": ["[itemprop='price']",".price",".product-price"],
-    },
-
-    # ── Teroson MS 939 ────────────────────────
-    {
-        "store": "RS Online T939 gris",
-        "url": "https://es.rs-online.com/web/p/selladores/6103997",
-        "product": "T939", "brand": "Teroson",
-        "selectors": ["[data-testid='price-display']",".price-display","[itemprop='price']",".price"],
-    },
-    {
-        "store": "RS Online T939 negro",
-        "url": "https://es.rs-online.com/web/p/selladores/6104007",
-        "product": "T939", "brand": "Teroson",
-        "selectors": ["[data-testid='price-display']",".price-display","[itemprop='price']",".price"],
-    },
-    {
-        "store": "Farnell T939",
-        "url": "https://es.farnell.com/teroson/ms-939-fr-black-290ml/sellante-cartucho-290ml-negro/dp/3438686",
-        "product": "T939", "brand": "Teroson",
-        "selectors": ["[itemprop='price']",".price",".product-price","[data-price]"],
     },
     {
         "store": "Suministros Torras T939",
         "url": "https://www.suministrostorras.com/es/producto/83538/teroson-ms-939-gris-290ml-adhesivo-elastico-monocomponente-78846",
         "product": "T939", "brand": "Teroson",
-        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
-    },
-    {
-        "store": "Dexis Ibérica T939",
-        "url": "https://tienda.dexis-iberica.com/selladores-en-base-a-silanos-modificados-teroson-ms-939-adhesivo-elastico-loctite-2436358.html",
-        "product": "T939", "brand": "Teroson",
-        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
+        "selectors": ["[itemprop='price']",".price",".product-price"],
     },
 
     # ════════════════════════════════════════════
-    # COMPETENCIA — Soudal
+    # SOUDAL
     # ════════════════════════════════════════════
-
-    # ── Soudaflex 45 FC ───────────────────────
-    {
-        "store": "Jucarsa SF45",
-        "url": "https://jucarsa.es/es/poliuretanos/836-soudaflex-45fc-blanco.html",
-        "product": "SF45", "brand": "Soudal",
-        "selectors": ["span[itemprop='price']",".price","[data-price]","span.product-price"],
-    },
     {
         "store": "Aismar SF45",
         "url": "https://www.poliuretanosaismar.com/tienda/resinas/reparacion-soudal/soudaflex-pu450-fc-300ml/",
         "product": "SF45", "brand": "Soudal",
-        "selectors": ["[itemprop='price']",".price",".woocommerce-Price-amount","span.amount"],
+        "selectors": ["[itemprop='price']",".price",".woocommerce-Price-amount"],
     },
     {
         "store": "Mengual SF45",
         "url": "https://www.mengual.com/soudaflex-45fc-adhesivo-sellador-de-poliuretano",
         "product": "SF45", "brand": "Soudal",
-        "selectors": ["[itemprop='price']",".price","[data-price]",".product-info-price"],
+        "selectors": ["[itemprop='price']",".price","[data-price]"],
     },
     {
         "store": "Esteba SF45",
         "url": "https://www.esteba.com/es/adhesivo-sellador-pu-soudaflex-45fc",
         "product": "SF45", "brand": "Soudal",
-        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
-    },
-
-    # ── Soudaseal 240 FC ──────────────────────
-    {
-        "store": "Amazon SS240",
-        "url": "https://www.amazon.es/Soudaseal-Sellador-industrial-tecnolog%C3%ADa-garantiza/dp/B09V1L24LN",
-        "product": "SS240", "brand": "Soudal",
-        "selectors": [".a-price .a-offscreen","span.a-price-whole","#priceblock_ourprice"],
+        "selectors": ["[itemprop='price']",".price",".product-price"],
     },
     {
         "store": "Simor SS240",
         "url": "https://simor.es/producto/soudaseal-240-fc-290-ml/",
         "product": "SS240", "brand": "Soudal",
-        "selectors": ["[itemprop='price']",".price",".woocommerce-Price-amount","span.amount"],
+        "selectors": ["[itemprop='price']",".price",".woocommerce-Price-amount"],
     },
     {
         "store": "Mengual SS240",
         "url": "https://www.mengual.com/adhesivo-sellador-soudalseal-240fc-bolsa-de-600-ml",
         "product": "SS240", "brand": "Soudal",
-        "selectors": ["[itemprop='price']",".price","[data-price]",".product-info-price"],
+        "selectors": ["[itemprop='price']",".price","[data-price]"],
     },
     {
         "store": "Ventigo SS240",
         "url": "https://www.ventigo.es/es_ES/p/sellador-adhesivo-ms-polimero-gris-soudaseal-240fc-tubo-290ml-unidad/5881/",
         "product": "SS240", "brand": "Soudal",
-        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
+        "selectors": ["[itemprop='price']",".price",".product-price"],
     },
 
     # ════════════════════════════════════════════
-    # COMPETENCIA — Quiadsa Turbo
+    # QUIADSA
     # ════════════════════════════════════════════
-    {
-        "store": "Obramat QT negro",
-        "url": "https://www.obramat.es/productos/adhesivo-sellador-turbo-quiadsa-290ml-negro-10770816.html",
-        "product": "QT", "brand": "Quiadsa",
-        "selectors": ["[data-price]",".price",".product-price","[itemprop='price']"],
-    },
-    {
-        "store": "Leroy Merlin QT",
-        "url": "https://www.leroymerlin.es/productos/adhesivo-sellador-polimero-tubo-125-ml-blanco-fija-plus-turbo-quiadsa-85825311.html",
-        "product": "QT", "brand": "Quiadsa",
-        "selectors": ["[data-testid='price']",".price__amount","span.price","[itemprop='price']"],
-    },
-    {
-        "store": "FerrOkey QT",
-        "url": "https://www.ferrokey.eu/adhesivo-sellador-fija-plus-turbo-quiadsa-290-ml-gris",
-        "product": "QT", "brand": "Quiadsa",
-        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
-    },
     {
         "store": "Ferreteria Esmas QT",
         "url": "https://www.ferreteriaesmas.com/adhesivos-de-montaje/117-polimero-adhesivo-fija-plus-turbo-quiadsa-8425608305791.html",
         "product": "QT", "brand": "Quiadsa",
-        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
+        "selectors": ["[itemprop='price']",".price",".product-price"],
     },
     {
         "store": "Destornillate QT",
         "url": "https://www.destornillate.es/producto/quiadsa-adhesivo-sellador-fija-plus-turbo-blanco-290ml/",
         "product": "QT", "brand": "Quiadsa",
+        "selectors": ["[itemprop='price']",".price",".woocommerce-Price-amount"],
+    },
+
+    # ════════════════════════════════════════════
+    # PATTEX SP101
+    # ════════════════════════════════════════════
+    {
+        "store": "Carrefour SP101",
+        "url": "https://www.carrefour.es/adhesivo-sellador-sp-101-gris-pattex/8410020407406/p",
+        "product": "SP101", "brand": "Pattex",
+        "selectors": ["[data-testid='product-price']",".product-price","[itemprop='price']",".price"],
+    },
+    {
+        "store": "Leroy Merlin SP101",
+        "url": "https://www.leroymerlin.es/productos/adhesivo-sellador-polimero-pegador-multimaterial-cartucho-280-ml-blanco-sp101-pattex-16027200.html",
+        "product": "SP101", "brand": "Pattex",
+        "selectors": ["[data-testid='price']",".price__amount","[itemprop='price']","span.price"],
+    },
+    {
+        "store": "Amazon SP101 negro",
+        "url": "https://www.amazon.es/Pattex-Sella-silicona-eficacia-fungicida/dp/B014WLHFL4",
+        "product": "SP101", "brand": "Pattex",
+        "selectors": [".a-price .a-offscreen","span.a-price-whole","#priceblock_ourprice"],
+    },
+    {
+        "store": "Amazon SP101 transparente",
+        "url": "https://www.amazon.es/Pattex-Original-Adhesivo-Interiores-Exteriores/dp/B08MW9RXS5",
+        "product": "SP101", "brand": "Pattex",
+        "selectors": [".a-price .a-offscreen","span.a-price-whole","#priceblock_ourprice"],
+    },
+    {
+        "store": "Rubix SP101 negro",
+        "url": "https://es.rubix.com/es/pattex-sp-101/p-G5010003635",
+        "product": "SP101", "brand": "Pattex",
+        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
+    },
+    {
+        "store": "Rubix SP101 blanco",
+        "url": "https://es.rubix.com/es/pattex-sp-101/p-G5010003636",
+        "product": "SP101", "brand": "Pattex",
+        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
+    },
+    {
+        "store": "BricoTiendas SP101",
+        "url": "https://www.bricotiendas.com/adhesivos-y-selladores/14828-sellador-pattex-sp101.html",
+        "product": "SP101", "brand": "Pattex",
+        "selectors": ["[itemprop='price']",".price",".product-price","span.price"],
+    },
+    {
+        "store": "ModregoHogar SP101",
+        "url": "https://www.modregohogar.com/ferreteria/silicona/siliconas-y-masillas/instant-tack-sp101-cartucho-blanco.html",
+        "product": "SP101", "brand": "Pattex",
         "selectors": ["[itemprop='price']",".price",".woocommerce-Price-amount","span.amount"],
     },
 ]
