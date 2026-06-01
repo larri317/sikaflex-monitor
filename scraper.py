@@ -205,12 +205,6 @@ STORES = [
         "selectors": ["[data-testid='price']",".price","[itemprop='price']",".product-price"],
     },
     {
-        "store": "Francobordo 3M5200",
-        "url": "https://www.francobordo.com/3m-adhesivo-sellador-marine-5200-blanco-p-353215.html",
-        "product": "3M5200", "brand": "3M", "category": "Marino",
-        "selectors": ["[itemprop='price']",".price",".product-price"],
-    },
-    {
         "store": "A.Alvarez 3M5200",
         "url": "https://www.a-alvarez.com/51842-sellador-adhesivo-3m-secado-rapido-5200",
         "product": "3M5200", "brand": "3M", "category": "Marino",
@@ -311,23 +305,43 @@ STORES = [
 ]
 
 
-def _extract_price_from_text(text: str) -> Optional[float]:
+def _extract_price_from_text(text: str, min_price: float = 3.0, max_price: float = 200.0) -> Optional[float]:
     patterns = [
         r"(\d{1,4}[.,]\d{2})\s*€",
         r"€\s*(\d{1,4}[.,]\d{2})",
         r"(\d{1,4}[.,]\d{2})",
     ]
+    candidates = []
     for pat in patterns:
-        m = re.search(pat, text.strip())
-        if m:
+        for m in re.finditer(pat, text.strip()):
             raw = m.group(1).replace(".", "").replace(",", ".")
             try:
                 val = float(raw)
-                if 1 < val < 500:
-                    return val
+                if min_price <= val <= max_price:
+                    candidates.append(val)
             except ValueError:
                 continue
-    return None
+    # Devolver el precio más bajo dentro del rango válido
+    return min(candidates) if candidates else None
+
+
+# Rangos de precios válidos por producto (min, max) en euros
+PRICE_RANGES = {
+    "522":    (5, 40),
+    "554":    (8, 50),
+    "621":    (8, 50),
+    "591":    (10, 60),
+    "291i":   (8, 50),
+    "T930":   (8, 60),
+    "T939":   (8, 60),
+    "SF45":   (3, 30),
+    "SS240":  (5, 40),
+    "QT":     (3, 25),
+    "SP101":  (3, 25),
+    "BP795":  (5, 30),
+    "3M5200": (15, 80),
+    "3M4200": (12, 70),
+}
 
 
 def _fetch_html(url: str, retries: int = 3) -> Optional[str]:
@@ -343,11 +357,17 @@ def _fetch_html(url: str, retries: int = 3) -> Optional[str]:
     return None
 
 
+    # ── Francobordo 3M5200 eliminado (precio incorrecto) ──
+    # Usar Waveinn y A.Alvarez en su lugar
+
 def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
     html = _fetch_html(store_cfg["url"])
     if not html:
         logger.error(f"No se pudo descargar {store_cfg['store']}")
         return None
+
+    product = store_cfg["product"]
+    min_p, max_p = PRICE_RANGES.get(product, (3, 200))
 
     soup = BeautifulSoup(html, "html.parser")
 
@@ -355,32 +375,33 @@ def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
         el = soup.select_one(selector)
         if el:
             raw = el.get("content") or el.get("data-price") or el.get_text()
-            price = _extract_price_from_text(raw)
+            price = _extract_price_from_text(raw, min_p, max_p)
             if price:
-                logger.info(f"✓ {store_cfg['store']} [{store_cfg['product']}] → {price}€")
+                logger.info(f"✓ {store_cfg['store']} [{product}] → {price}€")
                 return PriceResult(
                     store=store_cfg["store"],
                     url=store_cfg["url"],
-                    product=store_cfg["product"],
+                    product=product,
                     brand=store_cfg.get("brand", "Sika"),
                     category=store_cfg.get("category", "General"),
                     price=price,
                 )
 
+    # Fallback texto completo con rango de precios del producto
     full_text = soup.get_text()
-    price = _extract_price_from_text(full_text)
+    price = _extract_price_from_text(full_text, min_p, max_p)
     if price:
-        logger.info(f"✓ {store_cfg['store']} [{store_cfg['product']}] → {price}€ (fallback)")
+        logger.info(f"✓ {store_cfg['store']} [{product}] → {price}€ (fallback)")
         return PriceResult(
             store=store_cfg["store"],
             url=store_cfg["url"],
-            product=store_cfg["product"],
+            product=product,
             brand=store_cfg.get("brand", "Sika"),
             category=store_cfg.get("category", "General"),
             price=price,
         )
 
-    logger.warning(f"✗ No se encontró precio en {store_cfg['store']}")
+    logger.warning(f"✗ No se encontró precio válido en {store_cfg['store']} (rango {min_p}-{max_p}€)")
     return None
 
 
