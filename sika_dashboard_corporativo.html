@@ -4,153 +4,205 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sika — Monitor de Precios</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{--yellow:#FCC500;--yellow-dk:#E6B000;--black:#000;--white:#fff;--grey:#7C7C7C;--grey-lt:#F2F2F0;--border:#E0E0DC;--text:#111;--muted:#7C7C7C;--green:#16A34A;--red:#DC2626;--teal:#77BCB2;}
+:root{
+  --yellow:#FCC500;--yellow-dk:#E6B000;--black:#000;--white:#fff;
+  --grey:#7C7C7C;--grey-lt:#F2F2F0;--border:#E0E0DC;--text:#111;--muted:#7C7C7C;
+  --green:#16A34A;--red:#DC2626;--teal:#77BCB2;
+  --cat-caravanas:#FCC500;--cat-marino:#0EA5E9;--cat-general:#7C3AED;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter',sans-serif;background:var(--grey-lt);color:var(--text);min-height:100vh;}
+
+/* LOADING */
 .loading-screen{position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:24px;}
-.loading-logo{display:flex;align-items:center;gap:16px;}
 .loading-wordmark{font-size:48px;font-weight:900;color:#fff;letter-spacing:6px;}
 .loading-wordmark span{color:var(--yellow);}
 .spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--yellow);border-radius:50%;animation:spin .9s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-sub{font-size:11px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;}
-.topbar{background:#000;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.2);}
-.topbar-brand{display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;border-bottom:1px solid rgba(255,255,255,.06);}
-.brand-left{display:flex;align-items:center;gap:14px;}
+.loading-sub{font-size:11px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;letter-spacing:2px;}
+
+/* TOPBAR */
+.topbar{background:#000;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.3);}
+.topbar-brand{display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:60px;border-bottom:1px solid rgba(255,255,255,.06);}
+.brand-left{display:flex;align-items:center;gap:12px;}
 .brand-name{font-size:20px;font-weight:900;color:#fff;letter-spacing:3px;}
-.brand-sep{width:2px;height:24px;background:var(--yellow);border-radius:2px;margin:0 4px;}
-.brand-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;}
-.brand-right{display:flex;align-items:center;gap:12px;}
-.live-badge{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+.brand-sep{width:2px;height:22px;background:var(--yellow);border-radius:2px;margin:0 4px;}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.brand-right{display:flex;align-items:center;gap:10px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;display:inline-block;margin-right:5px;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.refresh-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.live-text{font-size:11px;color:rgba(255,255,255,.35);font-family:'DM Mono',monospace;}
+.refresh-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
 .refresh-btn:hover{background:rgba(255,255,255,.14);color:#fff;}
-.topbar-nav{display:flex;align-items:center;gap:2px;padding:0 40px;height:48px;overflow-x:auto;}
+
+/* NAV TABS */
+.topbar-nav{display:flex;align-items:center;padding:0 40px;height:46px;gap:2px;overflow-x:auto;}
 .topbar-nav::-webkit-scrollbar{display:none;}
-.nav-tab{display:flex;align-items:center;gap:7px;padding:0 20px;height:48px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,.45);border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap;}
-.nav-tab:hover{color:rgba(255,255,255,.8);}
+.nav-tab{display:flex;align-items:center;gap:7px;padding:0 18px;height:46px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,.4);border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-tab:hover{color:rgba(255,255,255,.75);}
 .nav-tab.active{color:var(--yellow);border-bottom-color:var(--yellow);}
-.nav-tab-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.nav-sep{width:1px;height:20px;background:rgba(255,255,255,.08);margin:0 6px;}
+
+/* CATEGORY TABS */
+.cat-tabs{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;}
+.cat-tab{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;border:2px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);transition:all .15s;}
+.cat-tab:hover{border-color:var(--grey);}
+.cat-tab.active-caravanas{border-color:var(--cat-caravanas);background:#FFFBEB;color:#7A5C00;}
+.cat-tab.active-marino{border-color:var(--cat-marino);background:#F0F9FF;color:#0369A1;}
+.cat-tab.active-general{border-color:var(--cat-general);background:#F5F3FF;color:#5B21B6;}
+.cat-tab-icon{font-size:18px;}
+.cat-tab-count{font-size:10px;font-family:'DM Mono',monospace;opacity:.7;}
+
+/* CONTENT */
 .content{padding:28px 40px;max-width:1400px;margin:0 auto;}
+
+/* UPDATE BAR */
 .update-bar{background:#fff;border:1px solid var(--border);border-left:4px solid var(--yellow);border-radius:10px;padding:10px 18px;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
-.update-bar-refresh{margin-left:auto;cursor:pointer;color:var(--yellow-dk);font-weight:700;font-size:12px;}
+.update-bar-refresh{margin-left:auto;cursor:pointer;color:var(--yellow-dk);font-weight:700;}
+
+/* ERROR */
 .error-screen{background:#fff;border-radius:16px;padding:60px;text-align:center;border:1px solid var(--border);}
-.retry-btn{background:var(--yellow);color:#000;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
-.alert-banner{background:#FFF8E6;border:1px solid #F0C040;border-left:4px solid var(--yellow);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px;}
+.retry-btn{background:var(--yellow);color:#000;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
+
+/* ALERTS */
+.alert-banner{background:#FFF8E6;border:1px solid #F0C040;border-left:4px solid var(--yellow);border-radius:10px;padding:12px 18px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;}
 .alert-banner-text{font-size:13px;color:#5C4000;}
+
+/* KPIs */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-.kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:22px;position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
-.kpi:hover{box-shadow:0 6px 24px rgba(0,0,0,.08);transform:translateY(-2px);}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.kpi:hover{box-shadow:0 6px 24px rgba(0,0,0,.07);transform:translateY(-2px);}
 .kpi-stripe{position:absolute;top:0;left:0;right:0;height:4px;}
-.kpi-icon{font-size:24px;margin-bottom:12px;}
-.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px;}
-.kpi-value{font-size:32px;font-weight:900;letter-spacing:-1.5px;font-family:'DM Mono',monospace;color:#000;}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:8px;}
-.kpi-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:8px;}
+.kpi-icon{font-size:22px;margin-bottom:10px;}
+.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
+.kpi-value{font-size:30px;font-weight:900;letter-spacing:-1.5px;font-family:'DM Mono',monospace;color:#000;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;}
+.kpi-pill{display:inline-flex;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:6px;}
 .pill-up{background:#FEE2E2;color:var(--red);}
 .pill-down{background:#DCFCE7;color:var(--green);}
-.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;}
+
+/* CARDS */
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px;}
 .card-yl{border-top:3px solid var(--yellow);}
-.card-bk{border-top:3px solid #000;}
-.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
 .card-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#000;}
 .card-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;background:var(--grey-lt);padding:3px 10px;border-radius:6px;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:20px;}
-.ptag{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;font-family:'DM Mono',monospace;white-space:nowrap;letter-spacing:.5px;}
+
+/* PRODUCT & BRAND TAGS */
+.ptag{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;font-family:'DM Mono',monospace;white-space:nowrap;}
 .ptag-522{background:#FCC500;color:#000;}.ptag-554{background:#77BCB2;color:#fff;}.ptag-621{background:#333;color:#fff;}
+.ptag-591{background:#0EA5E9;color:#fff;}.ptag-291i{background:#0284C7;color:#fff;}
 .ptag-T930{background:#2563EB;color:#fff;}.ptag-T939{background:#60A5FA;color:#000;}
 .ptag-SF45{background:#16A34A;color:#fff;}.ptag-SS240{background:#4ADE80;color:#000;}
 .ptag-QT{background:#7C3AED;color:#fff;}.ptag-SP101{background:#DC2626;color:#fff;}
-.bpill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.ptag-BP795{background:#EA580C;color:#fff;}.ptag-3M5200{background:#0F172A;color:#fff;}.ptag-3M4200{background:#334155;color:#fff;}
+.bpill{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
 .bpill-Sika{background:#FFF3CC;color:#7A5C00;}.bpill-Teroson{background:#DBEAFE;color:#1E40AF;}
 .bpill-Soudal{background:#DCFCE7;color:#15803D;}.bpill-Quiadsa{background:#EDE9FE;color:#6D28D9;}
-.bpill-Pattex{background:#FEE2E2;color:#B91C1C;}
+.bpill-Pattex{background:#FEE2E2;color:#B91C1C;}.bpill-Bostik{background:#FEF3C7;color:#92400E;}
+.bpill-3M{background:#F1F5F9;color:#334155;}
+
+/* CATEGORY BADGES */
+.cat-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.cat-badge-Caravanas{background:#FFF3CC;color:#7A5C00;}
+.cat-badge-Marino{background:#E0F2FE;color:#0369A1;}
+.cat-badge-General{background:#EDE9FE;color:#5B21B6;}
+
+/* TABLES */
 .data-table{width:100%;border-collapse:collapse;}
 .data-table thead tr{background:var(--grey-lt);}
 .data-table th{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:2px solid var(--border);}
-.data-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.data-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
 .data-table tr:last-child td{border-bottom:none;}
 .data-table tbody tr:hover td{background:#FFFDF0;}
 .price-cell{font-family:'DM Mono',monospace;font-weight:700;font-size:14px;}
-.rank-badge{width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:'DM Mono',monospace;background:var(--grey-lt);color:var(--muted);}
+.rank-badge{width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:'DM Mono',monospace;background:var(--grey-lt);color:var(--muted);}
 .rank-1{background:var(--yellow);color:#000;}.rank-2,.rank-3{background:#E0E0DC;color:#444;}
 .diff-up{color:var(--red);font-size:12px;font-weight:700;font-family:'DM Mono',monospace;}
 .diff-down{color:var(--green);font-size:12px;font-weight:700;font-family:'DM Mono',monospace;}
-.diff-neu{color:var(--muted);font-size:12px;font-weight:600;font-family:'DM Mono',monospace;}
-.bar-list{display:flex;flex-direction:column;gap:14px;}
-.bar-row-meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:5px;}
-.bar-row-name{font-weight:600;color:#000;}
-.bar-row-val{font-family:'DM Mono',monospace;font-weight:700;}
-.bar-row-count{font-size:10px;color:var(--muted);margin-top:3px;}
+.diff-neu{color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;}
+
+/* BARS */
+.bar-list{display:flex;flex-direction:column;gap:12px;}
+.bar-meta{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.bar-name{font-weight:600;}
+.bar-val{font-family:'DM Mono',monospace;font-weight:700;}
 .bar-track{height:8px;background:var(--grey-lt);border-radius:4px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+
+/* SECTION DIVIDER */
 .sec-div{display:flex;align-items:center;gap:14px;margin:28px 0 20px;}
 .sec-div-line{flex:1;height:2px;background:var(--border);}
-.sec-div-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#000;background:var(--yellow);padding:4px 14px;border-radius:20px;white-space:nowrap;}
-.vs-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+.sec-div-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#000;padding:4px 14px;border-radius:20px;white-space:nowrap;}
+
+/* VS CARDS */
+.vs-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
 .vs-row:last-child{border-bottom:none;}
-.vs-tags{display:flex;align-items:center;gap:8px;}
-.vs-sep{font-size:11px;color:var(--muted);font-weight:600;}
+.vs-tags{display:flex;align-items:center;gap:6px;}
 .vs-pct{font-size:14px;font-weight:800;font-family:'DM Mono',monospace;}
-.mkt-row{margin-bottom:12px;}
-.mkt-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
-.mkt-left{display:flex;align-items:center;gap:8px;}
-.mkt-price{font-family:'DM Mono',monospace;font-weight:700;font-size:13px;}
-.evo-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;align-items:center;}
-.evo-filter-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-right:4px;}
-.evo-btn{padding:5px 14px;border-radius:100px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
-.evo-btn:hover{border-color:#000;color:#000;}
+
+/* EVO FILTERS */
+.evo-filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px;align-items:center;}
+.evo-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.evo-btn{padding:5px 12px;border-radius:100px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
 .evo-btn.all{border-color:#000;background:#000;color:#fff;}
 .evo-btn.p522{border-color:#E6B000;background:#E6B000;color:#000;}
 .evo-btn.p554{border-color:#77BCB2;background:#77BCB2;color:#fff;}
 .evo-btn.p621{border-color:#333;background:#333;color:#fff;}
+.evo-btn.p591{border-color:#0EA5E9;background:#0EA5E9;color:#fff;}
+.evo-btn.p291i{border-color:#0284C7;background:#0284C7;color:#fff;}
 .evo-btn.pT930{border-color:#2563EB;background:#2563EB;color:#fff;}
 .evo-btn.pT939{border-color:#60A5FA;background:#60A5FA;color:#000;}
 .evo-btn.pSF45{border-color:#16A34A;background:#16A34A;color:#fff;}
 .evo-btn.pSS240{border-color:#4ADE80;background:#4ADE80;color:#000;}
 .evo-btn.pQT{border-color:#7C3AED;background:#7C3AED;color:#fff;}
 .evo-btn.pSP101{border-color:#DC2626;background:#DC2626;color:#fff;}
+.evo-btn.pBP795{border-color:#EA580C;background:#EA580C;color:#fff;}
+.evo-btn.p3M5200{border-color:#0F172A;background:#0F172A;color:#fff;}
+.evo-btn.p3M4200{border-color:#334155;background:#334155;color:#fff;}
 .chart-wrap{position:relative;}
 @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:900px){.content{padding:16px 20px}.topbar-brand,.topbar-nav{padding:0 20px}.grid-2,.grid-3{grid-template-columns:1fr}.kpi-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.kpi-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.content{padding:16px 20px}.topbar-brand,.topbar-nav{padding:0 20px}.grid-2,.grid-3,.kpi-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <div class="loading-screen" id="loadingScreen">
-  <div class="loading-logo">
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect width="56" height="56" rx="8" fill="#FCC500"/><path d="M28 8L48 28L28 48L8 28L28 8Z" fill="#000"/><path d="M28 18L38 28L28 38L18 28L28 18Z" fill="#FCC500"/></svg>
+  <div style="display:flex;align-items:center;gap:16px">
+    <svg width="52" height="52" viewBox="0 0 52 52" fill="none"><rect width="52" height="52" rx="8" fill="#FCC500"/><path d="M26 7L45 26L26 45L7 26L26 7Z" fill="#000"/><path d="M26 17L35 26L26 35L17 26L26 17Z" fill="#FCC500"/></svg>
     <div class="loading-wordmark">S<span>I</span>KA</div>
   </div>
   <div class="spinner"></div>
-  <div class="loading-sub">Cargando datos · Price Intelligence</div>
+  <div class="loading-sub">CARGANDO · PRICE INTELLIGENCE</div>
 </div>
 
 <header class="topbar">
   <div class="topbar-brand">
     <div class="brand-left">
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="6" fill="#FCC500"/><path d="M18 5L31 18L18 31L5 18L18 5Z" fill="#000"/><path d="M18 12L24 18L18 24L12 18L18 12Z" fill="#FCC500"/></svg>
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="6" fill="#FCC500"/><path d="M17 4L30 17L17 30L4 17L17 4Z" fill="#000"/><path d="M17 11L23 17L17 23L11 17L17 11Z" fill="#FCC500"/></svg>
       <div class="brand-name">SIKA</div>
       <div class="brand-sep"></div>
       <div class="brand-sub">Price Intelligence</div>
     </div>
     <div class="brand-right">
-      <div class="live-badge"><div class="live-dot"></div><span id="liveText">Cargando...</span></div>
+      <div><span class="live-dot"></span><span class="live-text" id="liveText">Cargando...</span></div>
       <button class="refresh-btn" onclick="loadData()">↺ Actualizar</button>
     </div>
   </div>
   <nav class="topbar-nav">
-    <div class="nav-tab active" onclick="showView('resumen')" id="tab-resumen"><div class="nav-tab-dot" style="background:var(--yellow)"></div>Resumen</div>
-    <div class="nav-tab" onclick="showView('sika')" id="tab-sika"><div class="nav-tab-dot" style="background:var(--yellow)"></div>Productos Sika</div>
-    <div class="nav-tab" onclick="showView('competencia')" id="tab-competencia"><div class="nav-tab-dot" style="background:var(--teal)"></div>Competencia</div>
-    <div class="nav-tab" onclick="showView('comparativa')" id="tab-comparativa"><div class="nav-tab-dot" style="background:#333"></div>Comparativa</div>
-    <div class="nav-tab" onclick="showView('evolucion')" id="tab-evolucion"><div class="nav-tab-dot" style="background:var(--grey)"></div>Evolución</div>
+    <div class="nav-tab active" onclick="showView('resumen')" id="tab-resumen"><div class="nav-dot" style="background:var(--yellow)"></div>Resumen</div>
+    <div class="nav-tab" onclick="showView('caravanas')" id="tab-caravanas"><div class="nav-dot" style="background:var(--cat-caravanas)"></div>🚐 Caravanas</div>
+    <div class="nav-tab" onclick="showView('marino')" id="tab-marino"><div class="nav-dot" style="background:var(--cat-marino)"></div>⛵ Marino</div>
+    <div class="nav-tab" onclick="showView('general')" id="tab-general"><div class="nav-dot" style="background:var(--cat-general)"></div>🏭 General</div>
+    <div class="nav-sep"></div>
+    <div class="nav-tab" onclick="showView('comparativa')" id="tab-comparativa"><div class="nav-dot" style="background:#333"></div>Comparativa</div>
+    <div class="nav-tab" onclick="showView('evolucion')" id="tab-evolucion"><div class="nav-dot" style="background:var(--grey)"></div>Evolución</div>
   </nav>
 </header>
 
@@ -165,99 +217,156 @@ body{font-family:'Inter',sans-serif;background:var(--grey-lt);color:var(--text);
   </div>
 
   <div id="dashboard" style="display:none">
-    <div class="update-bar" id="updateBar">
-      <span>📡</span><span id="updateBarText">—</span>
-      <span class="update-bar-refresh" onclick="loadData()">↺ Refrescar</span>
-    </div>
+    <div class="update-bar"><span>📡</span><span id="updateBarText">—</span><span class="update-bar-refresh" onclick="loadData()">↺ Refrescar</span></div>
     <div id="alertsContainer"></div>
 
-    <!-- RESUMEN -->
+    <!-- ═══ RESUMEN ═══ -->
     <div id="view-resumen">
       <div class="kpi-grid" id="kpiGrid"></div>
+      <!-- Resumen por categoria -->
+      <div class="grid-3" id="catSummaryCards"></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏆 Ranking global · Precios más baratos hoy</span><span class="card-meta">Top 15 · Todos los productos</span></div>
+        <table class="data-table"><thead><tr><th>#</th><th>Cat.</th><th>Marca</th><th>Producto</th><th>Tienda</th><th>Precio</th><th>vs Media</th></tr></thead>
+        <tbody id="rankingBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ═══ CARAVANAS ═══ -->
+    <div id="view-caravanas" style="display:none">
+      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label" style="background:var(--cat-caravanas)">🚐 Categoría Caravanas</div><div class="sec-div-line"></div></div>
       <div class="grid-2">
         <div class="card card-yl">
-          <div class="card-header"><span class="card-title">Media precios hoy · Sika</span><span class="card-meta" id="todayBadge">—</span></div>
-          <div class="bar-list" id="sikaAvgBars"></div>
+          <div class="card-header"><span class="card-title">🟡 Sika · Media hoy</span></div>
+          <div class="bar-list" id="caravanasSikaBars"></div>
         </div>
-        <div class="card card-bk">
-          <div class="card-header"><span class="card-title">Media precios hoy · Competencia</span></div>
-          <div class="bar-list" id="compAvgBars"></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Competencia · Media hoy</span></div>
+          <div class="bar-list" id="caravaanasCompBars"></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">🏆 Ranking · Precios más baratos hoy</span><span class="card-meta">Top 12 · Todos los productos</span></div>
-        <table class="data-table"><thead><tr><th>#</th><th>Marca</th><th>Producto</th><th>Tienda</th><th>Precio</th><th>vs Media</th></tr></thead><tbody id="rankingBody"></tbody></table>
-      </div>
-    </div>
-
-    <!-- SIKA -->
-    <div id="view-sika" style="display:none">
-      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Productos Sika</div><div class="sec-div-line"></div></div>
-      <div class="grid-3" id="sikaKpis"></div>
-      <div class="card" style="margin-top:20px">
-        <div class="card-header"><span class="card-title">Precios por tienda</span><span class="card-meta" id="sikaDateBadge">—</span></div>
-        <table class="data-table"><thead><tr><th>Producto</th><th>Tienda</th><th>Precio hoy</th><th>Media 7d</th><th>Variación</th><th>Link</th></tr></thead><tbody id="sikaTableBody"></tbody></table>
+        <div class="card-header"><span class="card-title">Precios por tienda · Caravanas</span><span class="card-meta" id="caravanasDate">—</span></div>
+        <table class="data-table"><thead><tr><th>Marca</th><th>Producto</th><th>Tienda</th><th>Precio</th><th>Media 7d</th><th>Var.</th><th>Link</th></tr></thead>
+        <tbody id="caravanasTableBody"></tbody></table>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">Evolución Sikaflex® — Precio medio diario</span></div>
-        <div class="chart-wrap" style="height:280px"><canvas id="sikaLineChart"></canvas></div>
+        <div class="card-header"><span class="card-title">Comparativa Sika vs Competencia · Caravanas</span></div>
+        <div id="caravanasVs"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Evolución histórica · Caravanas</span></div>
+        <div class="chart-wrap" style="height:280px"><canvas id="caravanasLine"></canvas></div>
       </div>
     </div>
 
-    <!-- COMPETENCIA -->
-    <div id="view-competencia" style="display:none">
-      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Análisis de Competencia</div><div class="sec-div-line"></div></div>
-      <div class="grid-3" id="brandKpis" style="grid-template-columns:repeat(4,1fr)"></div>
-      <div class="card" style="margin-top:20px">
-        <div class="card-header"><span class="card-title">Precios por tienda · Competencia</span></div>
-        <table class="data-table"><thead><tr><th>Marca</th><th>Producto</th><th>Tienda</th><th>Precio hoy</th><th>Media 7d</th><th>Variación</th><th>Link</th></tr></thead><tbody id="compTableBody"></tbody></table>
-      </div>
+    <!-- ═══ MARINO ═══ -->
+    <div id="view-marino" style="display:none">
+      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label" style="background:var(--cat-marino);color:#fff">⛵ Categoría Marino</div><div class="sec-div-line"></div></div>
       <div class="grid-2">
-        <div class="card"><div class="card-header"><span class="card-title">Distribución por marca</span></div><div class="chart-wrap" style="height:260px"><canvas id="compDonut"></canvas></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">Media de precios por marca</span></div><div class="chart-wrap" style="height:260px"><canvas id="brandBarChart"></canvas></div></div>
+        <div class="card" style="border-top:3px solid var(--cat-marino)">
+          <div class="card-header"><span class="card-title">🟡 Sika · Media hoy</span></div>
+          <div class="bar-list" id="marinoSikaBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Competencia · Media hoy</span></div>
+          <div class="bar-list" id="marinoCompBars"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Precios por tienda · Marino</span><span class="card-meta" id="marinoDate">—</span></div>
+        <table class="data-table"><thead><tr><th>Marca</th><th>Producto</th><th>Tienda</th><th>Precio</th><th>Media 7d</th><th>Var.</th><th>Link</th></tr></thead>
+        <tbody id="marinoTableBody"></tbody></table>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Comparativa Sika vs Competencia · Marino</span></div>
+        <div id="marinoVs"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Evolución histórica · Marino</span></div>
+        <div class="chart-wrap" style="height:280px"><canvas id="marinoLine"></canvas></div>
       </div>
     </div>
 
-    <!-- COMPARATIVA -->
+    <!-- ═══ GENERAL ═══ -->
+    <div id="view-general" style="display:none">
+      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label" style="background:var(--cat-general);color:#fff">🏭 Categoría General</div><div class="sec-div-line"></div></div>
+      <div class="grid-2">
+        <div class="card" style="border-top:3px solid var(--cat-general)">
+          <div class="card-header"><span class="card-title">🟡 Sika · Media hoy</span></div>
+          <div class="bar-list" id="generalSikaBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Competencia · Media hoy</span></div>
+          <div class="bar-list" id="generalCompBars"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Precios por tienda · General</span><span class="card-meta" id="generalDate">—</span></div>
+        <table class="data-table"><thead><tr><th>Marca</th><th>Producto</th><th>Tienda</th><th>Precio</th><th>Media 7d</th><th>Var.</th><th>Link</th></tr></thead>
+        <tbody id="generalTableBody"></tbody></table>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Comparativa Sika vs Competencia · General</span></div>
+        <div id="generalVs"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Evolución histórica · General</span></div>
+        <div class="chart-wrap" style="height:280px"><canvas id="generalLine"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ═══ COMPARATIVA GLOBAL ═══ -->
     <div id="view-comparativa" style="display:none">
-      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Sika vs Competencia</div><div class="sec-div-line"></div></div>
+      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label" style="background:#000;color:#FCC500">Comparativa Global</div><div class="sec-div-line"></div></div>
       <div class="card">
-        <div class="card-header"><span class="card-title">Comparativa de precios medios — Todos los productos</span></div>
-        <div class="chart-wrap" style="height:300px"><canvas id="compareBarChart"></canvas></div>
+        <div class="card-header"><span class="card-title">Todos los productos · Precio medio hoy</span></div>
+        <div class="chart-wrap" style="height:320px"><canvas id="compareBarChart"></canvas></div>
       </div>
-      <div class="grid-2">
-        <div class="card"><div class="card-header"><span class="card-title">🟡 Sika vs 🔵 Teroson</span></div><div id="vsT"></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">🟡 Sika vs 🟢 Soudal</span></div><div id="vsS"></div></div>
-      </div>
-      <div class="grid-2">
-        <div class="card"><div class="card-header"><span class="card-title">🟡 Sika vs 🔴 Pattex</span></div><div id="vsP"></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">🟡 Sika vs 🟣 Quiadsa</span></div><div id="vsQ"></div></div>
+      <div class="grid-3">
+        <div class="card" style="border-top:3px solid var(--cat-caravanas)">
+          <div class="card-header"><span class="card-title">🚐 Sika vs Competencia · Caravanas</span></div>
+          <div id="vsCaravanas"></div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--cat-marino)">
+          <div class="card-header"><span class="card-title">⛵ Sika vs Competencia · Marino</span></div>
+          <div id="vsMarino"></div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--cat-general)">
+          <div class="card-header"><span class="card-title">🏭 Sika vs Competencia · General</span></div>
+          <div id="vsGeneral"></div>
+        </div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">Posicionamiento en el mercado</span><span class="card-meta">De más barato a más caro</span></div>
+        <div class="card-header"><span class="card-title">Posicionamiento en el mercado · De más barato a más caro</span></div>
         <div id="marketPos"></div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">Evolución histórica comparada</span></div>
+        <div class="card-header"><span class="card-title">Evolución histórica · Sika (línea) vs Competencia (guiones)</span></div>
         <div class="chart-wrap" style="height:320px"><canvas id="allLineChart"></canvas></div>
       </div>
     </div>
 
-    <!-- EVOLUCIÓN -->
+    <!-- ═══ EVOLUCIÓN ═══ -->
     <div id="view-evolucion" style="display:none">
-      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Evolución de Precios</div><div class="sec-div-line"></div></div>
+      <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label" style="background:var(--grey);color:#fff">Evolución de Precios</div><div class="sec-div-line"></div></div>
       <div class="evo-filters">
-        <span class="evo-filter-label">Filtrar:</span>
+        <span class="evo-label">Filtrar:</span>
         <button class="evo-btn all" id="ef-all" onclick="setEvo('all')">Todos</button>
-        <button class="evo-btn" id="ef-522" onclick="setEvo('522')">SFX 522</button>
-        <button class="evo-btn" id="ef-554" onclick="setEvo('554')">SFX 554</button>
-        <button class="evo-btn" id="ef-621" onclick="setEvo('621')">SFX 621</button>
+        <button class="evo-btn" id="ef-522" onclick="setEvo('522')">522</button>
+        <button class="evo-btn" id="ef-554" onclick="setEvo('554')">554</button>
+        <button class="evo-btn" id="ef-591" onclick="setEvo('591')">591</button>
+        <button class="evo-btn" id="ef-291i" onclick="setEvo('291i')">291i</button>
+        <button class="evo-btn" id="ef-621" onclick="setEvo('621')">621</button>
         <button class="evo-btn" id="ef-T930" onclick="setEvo('T930')">T930</button>
         <button class="evo-btn" id="ef-T939" onclick="setEvo('T939')">T939</button>
         <button class="evo-btn" id="ef-SF45" onclick="setEvo('SF45')">SF45</button>
         <button class="evo-btn" id="ef-SS240" onclick="setEvo('SS240')">SS240</button>
         <button class="evo-btn" id="ef-QT" onclick="setEvo('QT')">QT</button>
         <button class="evo-btn" id="ef-SP101" onclick="setEvo('SP101')">SP101</button>
+        <button class="evo-btn" id="ef-BP795" onclick="setEvo('BP795')">BP795</button>
+        <button class="evo-btn" id="ef-3M5200" onclick="setEvo('3M5200')">3M5200</button>
+        <button class="evo-btn" id="ef-3M4200" onclick="setEvo('3M4200')">3M4200</button>
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">Precio medio diario</span><span class="card-meta" id="evoDays">—</span></div>
@@ -268,18 +377,26 @@ body{font-family:'Inter',sans-serif;background:var(--grey-lt);color:var(--text);
         <div class="chart-wrap" style="height:280px"><canvas id="evoBarChart"></canvas></div>
       </div>
     </div>
+
   </div>
 </div>
 
 <script>
 const CSV_URL='https://raw.githubusercontent.com/larri317/sikaflex-monitor/main/prices.csv';
-const PNAMES={'522':'Sikaflex® 522','554':'Sikaflex® 554','621':'Sikaflex® 621','T930':'Teroson MS 930','T939':'Teroson MS 939','SF45':'Soudaflex 45 FC','SS240':'Soudaseal 240 FC','QT':'Quiadsa Turbo','SP101':'Pattex SP 101'};
-const PBRANDS={'522':'Sika','554':'Sika','621':'Sika','T930':'Teroson','T939':'Teroson','SF45':'Soudal','SS240':'Soudal','QT':'Quiadsa','SP101':'Pattex'};
-const PCOLORS={'522':'#E6B000','554':'#77BCB2','621':'#333','T930':'#2563EB','T939':'#60A5FA','SF45':'#16A34A','SS240':'#4ADE80','QT':'#7C3AED','SP101':'#DC2626'};
-const BCOLORS={'Sika':'#E6B000','Teroson':'#2563EB','Soudal':'#16A34A','Quiadsa':'#7C3AED','Pattex':'#DC2626'};
-const SIKA_P=['522','554','621'];
-const COMP_P=['T930','T939','SF45','SS240','QT','SP101'];
+
+const PNAMES={'522':'Sikaflex® 522','554':'Sikaflex® 554','621':'Sikaflex® 621','591':'Sikaflex® 591','291i':'Sikaflex® 291i','T930':'Teroson MS 930','T939':'Teroson MS 939','SF45':'Soudaflex 45 FC','SS240':'Soudaseal 240 FC','QT':'Quiadsa Turbo','SP101':'Pattex SP 101','BP795':'Bostik P795','3M5200':'3M 5200','3M4200':'3M 4200'};
+const PBRANDS={'522':'Sika','554':'Sika','621':'Sika','591':'Sika','291i':'Sika','T930':'Teroson','T939':'Teroson','SF45':'Soudal','SS240':'Soudal','QT':'Quiadsa','SP101':'Pattex','BP795':'Bostik','3M5200':'3M','3M4200':'3M'};
+const PCOLORS={'522':'#E6B000','554':'#77BCB2','621':'#333','591':'#0EA5E9','291i':'#0284C7','T930':'#2563EB','T939':'#60A5FA','SF45':'#16A34A','SS240':'#4ADE80','QT':'#7C3AED','SP101':'#DC2626','BP795':'#EA580C','3M5200':'#0F172A','3M4200':'#334155'};
+const BCOLORS={'Sika':'#E6B000','Teroson':'#2563EB','Soudal':'#16A34A','Quiadsa':'#7C3AED','Pattex':'#DC2626','Bostik':'#EA580C','3M':'#334155'};
+const CATS={
+  Caravanas:{sika:['522','554'],comp:['T930','SF45','BP795'],color:'#FCC500',icon:'🚐'},
+  Marino:   {sika:['591','291i'],comp:['3M5200','3M4200','BP795'],color:'#0EA5E9',icon:'⛵'},
+  General:  {sika:['621'],comp:['T939','SS240','QT','SP101'],color:'#7C3AED',icon:'🏭'},
+};
+const SIKA_P=['522','554','621','591','291i'];
+const COMP_P=['T930','T939','SF45','SS240','QT','SP101','BP795','3M5200','3M4200'];
 const ALL_P=[...SIKA_P,...COMP_P];
+
 let allData=[],charts={},evoFilter='all';
 
 async function loadData(){
@@ -291,7 +408,7 @@ async function loadData(){
     if(!r.ok)throw new Error(`HTTP ${r.status}`);
     const txt=await r.text();
     allData=parseCSV(txt);
-    if(!allData.length)throw new Error('CSV vacío');
+    if(!allData.length)throw new Error('CSV vacío o sin datos');
     renderDashboard();
   }catch(e){
     document.getElementById('loadingScreen').style.display='none';
@@ -307,6 +424,12 @@ function parseCSV(txt){
     hdrs.forEach((h,i)=>v[h]=(parts[i]||'').trim());
     v.price=parseFloat(v.price)||0;
     if(!v.brand)v.brand=PBRANDS[v.product]||'?';
+    if(!v.category){
+      for(const[cat,cfg]of Object.entries(CATS)){
+        if([...cfg.sika,...cfg.comp].includes(v.product)){v.category=cat;break;}
+      }
+      if(!v.category)v.category='General';
+    }
     return v;
   }).filter(r=>r.price>0&&r.date&&r.store);
 }
@@ -314,12 +437,13 @@ function parseCSV(txt){
 function renderDashboard(){
   const dates=[...new Set(allData.map(r=>r.date))].sort();
   const last=dates[dates.length-1];
-  const stores=[...new Set(allData.map(r=>r.store))];
   document.getElementById('liveText').textContent=last||'—';
-  document.getElementById('todayBadge').textContent=last;
-  document.getElementById('sikaDateBadge').textContent=last;
+  document.getElementById('updateBarText').textContent=`Datos del ${last} · ${allData.length} registros · ${[...new Set(allData.map(r=>r.store))].length} tiendas`;
   document.getElementById('evoDays').textContent=`${dates.length} días de histórico`;
-  document.getElementById('updateBarText').textContent=`Datos del ${last} · ${allData.length} registros · ${stores.length} tiendas · Actualización automática diaria`;
+  Object.keys(CATS).forEach(c=>{
+    const el=document.getElementById(`${c.toLowerCase()}Date`);
+    if(el)el.textContent=last;
+  });
   document.getElementById('loadingScreen').style.display='none';
   document.getElementById('dashboard').style.display='block';
   renderAll();
@@ -329,15 +453,21 @@ function renderDashboard(){
 const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null;
 const lastDate=()=>[...new Set(allData.map(r=>r.date))].sort().pop();
 const todayRows=()=>allData.filter(r=>r.date===lastDate());
-const getAvg=(p,rows)=>{const pr=rows.filter(r=>r.product===p).map(r=>r.price);return pr.length?avg(pr):null;};
+const catRows=(cat)=>allData.filter(r=>[...CATS[cat].sika,...CATS[cat].comp].includes(r.product));
+const catTodayRows=(cat)=>todayRows().filter(r=>[...CATS[cat].sika,...CATS[cat].comp].includes(r.product));
 const hist7=p=>{const dates=[...new Set(allData.map(r=>r.date))].sort().slice(-8,-1);const pr=allData.filter(r=>dates.includes(r.date)&&r.product===p).map(r=>r.price);return pr.length?avg(pr):null;};
 function ptag(p){return `<span class="ptag ptag-${p}">${p}</span>`;}
 function bpill(b){return `<span class="bpill bpill-${b}">${b}</span>`;}
+function catBadge(c){return `<span class="cat-badge cat-badge-${c}">${CATS[c]?.icon||''} ${c}</span>`;}
 function pctSpan(p,ref){if(!ref)return '<span class="diff-neu">—</span>';const d=(p-ref)/ref*100;const cls=d<-1?'diff-down':d>1?'diff-up':'diff-neu';return `<span class="${cls}">${d>=0?'+':''}${d.toFixed(1)}%</span>`;}
 function destroyChart(k){if(charts[k]){charts[k].destroy();delete charts[k];}}
-const COPTS={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#7C7C7C',font:{size:11,family:'Inter'},boxWidth:12,padding:14}}},scales:{x:{ticks:{color:'#7C7C7C',font:{size:10},maxTicksLimit:10},grid:{color:'#E0E0DC'}},y:{ticks:{color:'#7C7C7C',callback:v=>v+'€'},grid:{color:'#E0E0DC'}}}};
+const CO={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#7C7C7C',font:{size:11,family:'Inter'},boxWidth:12,padding:12}}},scales:{x:{ticks:{color:'#7C7C7C',font:{size:10},maxTicksLimit:10},grid:{color:'#E0E0DC'}},y:{ticks:{color:'#7C7C7C',callback:v=>v+'€'},grid:{color:'#E0E0DC'}}}};
 
-function renderAll(){renderAlerts();renderKPIs();renderAvgBars(SIKA_P,'sikaAvgBars');renderAvgBars(COMP_P,'compAvgBars');renderRanking();renderSikaKpis();renderSikaTable();renderSikaLine();renderBrandKpis();renderCompTable();renderCompDonut();renderBrandBar();renderCompareBar();renderVs();renderMarketPos();renderAllLine();renderEvoCharts();}
+function renderAll(){
+  renderAlerts();renderKPIs();renderCatSummary();renderRanking();
+  Object.keys(CATS).forEach(cat=>renderCatSection(cat));
+  renderCompareBar();renderVsGlobal();renderMarketPos();renderAllLine();renderEvoCharts();
+}
 
 function renderAlerts(){
   const dates=[...new Set(allData.map(r=>r.date))].sort();
@@ -345,7 +475,7 @@ function renderAlerts(){
   if(!prev){document.getElementById('alertsContainer').innerHTML='';return;}
   const today=allData.filter(r=>r.date===last),yesterday=allData.filter(r=>r.date===prev);
   const alerts=[];
-  today.forEach(t=>{const p=yesterday.find(p=>p.store===t.store&&p.product===t.product);if(p){const pct=(t.price-p.price)/p.price*100;if(pct>10)alerts.push(`${bpill(PBRANDS[t.product]||'?')} <b>${t.store}</b> subió <b>${PNAMES[t.product]||t.product}</b> un <b>▲${pct.toFixed(1)}%</b> (${p.price.toFixed(2)}€ → ${t.price.toFixed(2)}€)`);}});
+  today.forEach(t=>{const p=yesterday.find(p=>p.store===t.store&&p.product===t.product);if(p){const pct=(t.price-p.price)/p.price*100;if(pct>10)alerts.push(`${bpill(PBRANDS[t.product]||'?')} <b>${t.store}</b> subió <b>${PNAMES[t.product]||t.product}</b> un <b>▲${pct.toFixed(1)}%</b>`);}});
   document.getElementById('alertsContainer').innerHTML=alerts.map(a=>`<div class="alert-banner"><span style="font-size:18px;flex-shrink:0">⚠️</span><span class="alert-banner-text">${a}</span></div>`).join('');
 }
 
@@ -356,80 +486,104 @@ function renderKPIs(){
   const diff=sA&&cA?((sA-cA)/cA*100):null;
   const minP=today.length?Math.min(...today.map(r=>r.price)):null;
   const minR=today.find(r=>r.price===minP);
-  const kpis=[
-    {icon:'🟡',label:'Media Sika hoy',value:sA?`${sA.toFixed(2)}€`:'—',sub:`${today.filter(r=>SIKA_P.includes(r.product)).length} tiendas`,stripe:'#FCC500'},
-    {icon:'🔵',label:'Media Competencia',value:cA?`${cA.toFixed(2)}€`:'—',sub:`${today.filter(r=>COMP_P.includes(r.product)).length} tiendas`,stripe:'#77BCB2'},
-    {icon:'📊',label:'Sika vs Mercado',value:diff!==null?`${diff>=0?'+':''}${diff.toFixed(1)}%`:'—',sub:diff!==null?(diff>0?'Sika más caro':'Sika más barato'):'Sin datos',pill:diff!==null?(diff>0?{txt:`▲ ${diff.toFixed(1)}%`,cls:'pill-up'}:{txt:`▼ ${Math.abs(diff).toFixed(1)}%`,cls:'pill-down'}):null,stripe:diff!==null?(diff>0?'#DC2626':'#16A34A'):'#7C7C7C'},
-    {icon:'🏆',label:'Precio más barato',value:minP?`${minP.toFixed(2)}€`:'—',sub:minR?`${PNAMES[minR.product]||minR.product}`:'',stripe:minR?PCOLORS[minR.product]:'#000'},
-  ];
-  document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`<div class="kpi"><div class="kpi-stripe" style="background:${k.stripe}"></div><div class="kpi-icon">${k.icon}</div><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div><div class="kpi-sub">${k.sub}</div>${k.pill?`<div class="kpi-pill ${k.pill.cls}">${k.pill.txt}</div>`:''}</div>`).join('');
+  const dates=[...new Set(allData.map(r=>r.date))].sort();
+  document.getElementById('kpiGrid').innerHTML=[
+    {icon:'🟡',label:'Media Sika hoy',value:sA?`${sA.toFixed(2)}€`:'—',sub:`${today.filter(r=>SIKA_P.includes(r.product)).length} registros`,stripe:'#FCC500'},
+    {icon:'🔵',label:'Media Competencia',value:cA?`${cA.toFixed(2)}€`:'—',sub:`${today.filter(r=>COMP_P.includes(r.product)).length} registros`,stripe:'#77BCB2'},
+    {icon:'📊',label:'Sika vs Mercado',value:diff!==null?`${diff>=0?'+':''}${diff.toFixed(1)}%`:'—',sub:diff!==null?(diff>0?'Sika más caro':'Sika más barato'):'Sin datos',pill:diff!==null?(diff>0?{t:`▲ ${diff.toFixed(1)}%`,c:'pill-up'}:{t:`▼ ${Math.abs(diff).toFixed(1)}%`,c:'pill-down'}):null,stripe:diff!==null?(diff>0?'#DC2626':'#16A34A'):'#7C7C7C'},
+    {icon:'📅',label:'Días de histórico',value:dates.length,sub:`${allData.length} registros · ${[...new Set(allData.map(r=>r.store))].length} tiendas`,stripe:'#000'},
+  ].map(k=>`<div class="kpi"><div class="kpi-stripe" style="background:${k.stripe}"></div><div class="kpi-icon">${k.icon}</div><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div><div class="kpi-sub">${k.sub}</div>${k.pill?`<div class="kpi-pill ${k.pill.c}">${k.pill.t}</div>`:''}</div>`).join('');
 }
 
-function renderAvgBars(products,containerId){
+function renderCatSummary(){
   const today=todayRows();
-  const items=products.map(p=>{const pr=today.filter(r=>r.product===p).map(r=>r.price);return{product:p,avg:pr.length?avg(pr):0,count:pr.length};}).filter(i=>i.avg>0);
-  const maxA=Math.max(...items.map(i=>i.avg),1);
-  document.getElementById(containerId).innerHTML=items.map(i=>`<div><div class="bar-row-meta"><span class="bar-row-name">${PNAMES[i.product]}</span><span class="bar-row-val" style="color:${PCOLORS[i.product]==='#E6B000'?'#7A5C00':PCOLORS[i.product]}">${i.avg.toFixed(2)} €</span></div><div class="bar-track"><div class="bar-fill" style="width:${(i.avg/maxA*100).toFixed(1)}%;background:${PCOLORS[i.product]}"></div></div><div class="bar-row-count">${i.count} tiendas</div></div>`).join('')||'<div style="color:var(--muted);font-size:13px;padding:12px 0">Sin datos hoy</div>';
+  document.getElementById('catSummaryCards').innerHTML=Object.entries(CATS).map(([cat,cfg])=>{
+    const allProds=[...cfg.sika,...cfg.comp];
+    const prices=today.filter(r=>allProds.includes(r.product)).map(r=>r.price);
+    const sikaP=today.filter(r=>cfg.sika.includes(r.product)).map(r=>r.price);
+    const compP=today.filter(r=>cfg.comp.includes(r.product)).map(r=>r.price);
+    const sA=sikaP.length?avg(sikaP):null;
+    const cA=compP.length?avg(compP):null;
+    const diff=sA&&cA?((sA-cA)/cA*100):null;
+    return `<div class="card" style="margin-bottom:0;cursor:pointer;border-top:4px solid ${cfg.color}" onclick="showView('${cat.toLowerCase()}')">
+      <div class="card-header"><span class="card-title">${cfg.icon} ${cat}</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div><div style="font-size:10px;color:var(--muted);margin-bottom:4px">SIKA</div><div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace">${sA?sA.toFixed(2)+'€':'—'}</div></div>
+        <div><div style="font-size:10px;color:var(--muted);margin-bottom:4px">COMPETENCIA</div><div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace">${cA?cA.toFixed(2)+'€':'—'}</div></div>
+      </div>
+      ${diff!==null?`<div style="font-size:12px;font-weight:700;color:${diff>0?'var(--red)':'var(--green)'}">${diff>=0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}% Sika ${diff>0?'más caro':'más barato'}</div>`:'<div style="font-size:12px;color:var(--muted)">Sin datos suficientes</div>'}
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">${prices.length} registros hoy · Ver detalle →</div>
+    </div>`;
+  }).join('');
 }
 
 function renderRanking(){
   const today=todayRows().sort((a,b)=>a.price-b.price);
   const avgs={};ALL_P.forEach(p=>{const pr=today.filter(r=>r.product===p).map(r=>r.price);avgs[p]=pr.length?avg(pr):0;});
-  document.getElementById('rankingBody').innerHTML=today.slice(0,12).map((r,i)=>`<tr><td><span class="rank-badge ${i<3?`rank-${i+1}`:''}">${i+1}</span></td><td>${bpill(PBRANDS[r.product]||'?')}</td><td>${ptag(r.product)}</td><td style="font-weight:500">${r.store}</td><td><span class="price-cell">${r.price.toFixed(2)} €</span></td><td>${pctSpan(r.price,avgs[r.product])}</td></tr>`).join('');
-}
-
-function renderSikaKpis(){
-  const today=todayRows();
-  document.getElementById('sikaKpis').innerHTML=SIKA_P.map(p=>{
-    const pr=today.filter(r=>r.product===p).map(r=>r.price);
-    const a=pr.length?avg(pr):null,mn=pr.length?Math.min(...pr):null,mx=pr.length?Math.max(...pr):null,h=hist7(p);
-    const diff=a&&h?((a-h)/h*100):null;
-    return `<div class="kpi" style="margin-bottom:0"><div class="kpi-stripe" style="background:${PCOLORS[p]}"></div><div style="margin-bottom:10px">${ptag(p)}</div><div class="kpi-label">${PNAMES[p]}</div><div class="kpi-value">${a?a.toFixed(2)+'€':'—'}</div><div class="kpi-sub">Min: ${mn?mn.toFixed(2)+'€':'—'} · Max: ${mx?mx.toFixed(2)+'€':'—'}</div>${diff!==null?`<div class="kpi-pill ${diff>0?'pill-up':'pill-down'}">${diff>=0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}% vs 7d</div>`:''}</div>`;
+  document.getElementById('rankingBody').innerHTML=today.slice(0,15).map((r,i)=>{
+    const cat=Object.entries(CATS).find(([,cfg])=>[...cfg.sika,...cfg.comp].includes(r.product));
+    return `<tr><td><span class="rank-badge ${i<3?`rank-${i+1}`:''}">${i+1}</span></td><td>${cat?catBadge(cat[0]):''}</td><td>${bpill(PBRANDS[r.product]||'?')}</td><td>${ptag(r.product)}</td><td style="font-weight:500">${r.store}</td><td><span class="price-cell">${r.price.toFixed(2)} €</span></td><td>${pctSpan(r.price,avgs[r.product])}</td></tr>`;
   }).join('');
 }
 
-function renderSikaTable(){
+function renderCatSection(cat){
+  const cfg=CATS[cat];
+  const catId=cat.toLowerCase();
+  const today=catTodayRows(cat);
   const last=lastDate();
-  const today=allData.filter(r=>r.date===last&&SIKA_P.includes(r.product)).sort((a,b)=>a.product.localeCompare(b.product)||a.price-b.price);
-  document.getElementById('sikaTableBody').innerHTML=today.map(r=>`<tr><td>${ptag(r.product)}</td><td style="font-weight:500">${r.store}</td><td><span class="price-cell">${r.price.toFixed(2)} €</span></td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${hist7(r.product)?hist7(r.product).toFixed(2)+' €':'—'}</td><td>${pctSpan(r.price,hist7(r.product))}</td><td><a href="${r.url}" target="_blank" style="color:#2563EB;font-size:12px;text-decoration:none">Ver →</a></td></tr>`).join('');
-}
-
-function renderSikaLine(){
   const dates=[...new Set(allData.map(r=>r.date))].sort();
-  destroyChart('sikaLine');
-  charts.sikaLine=new Chart(document.getElementById('sikaLineChart'),{type:'line',data:{labels:dates,datasets:SIKA_P.map(p=>({label:PNAMES[p],borderColor:PCOLORS[p],backgroundColor:PCOLORS[p]+'25',borderWidth:3,pointRadius:4,fill:true,tension:0.4,spanGaps:true,data:dates.map(d=>{const pr=allData.filter(r=>r.date===d&&r.product===p).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):null;})}))},options:COPTS});
+  const todayFull=allData.filter(r=>r.date===last&&[...cfg.sika,...cfg.comp].includes(r.product));
+
+  // Avg bars sika
+  renderBarList(cfg.sika,`${catId}SikaBars`);
+  // Avg bars comp
+  renderBarList(cfg.comp,`${catId}CompBars`);
+
+  // Table
+  const tbody=document.getElementById(`${catId}TableBody`);
+  if(tbody){
+    tbody.innerHTML=todayFull.sort((a,b)=>PBRANDS[a.product]===PBRANDS[b.product]?a.price-b.price:PBRANDS[a.product].localeCompare(PBRANDS[b.product])).map(r=>`
+      <tr><td>${bpill(PBRANDS[r.product]||'?')}</td><td>${ptag(r.product)}</td><td style="font-weight:500">${r.store}</td>
+      <td><span class="price-cell">${r.price.toFixed(2)} €</span></td>
+      <td style="font-family:'DM Mono',monospace;color:var(--muted)">${hist7(r.product)?hist7(r.product).toFixed(2)+' €':'—'}</td>
+      <td>${pctSpan(r.price,hist7(r.product))}</td>
+      <td><a href="${r.url}" target="_blank" style="color:#2563EB;font-size:12px;text-decoration:none">Ver →</a></td></tr>`).join('');
+  }
+
+  // Vs comparison
+  const vsEl=document.getElementById(`${catId}Vs`);
+  if(vsEl){
+    vsEl.innerHTML=cfg.sika.map(s=>cfg.comp.map(c=>{
+      const sA=avg(today.filter(r=>r.product===s).map(r=>r.price));
+      const cA=avg(today.filter(r=>r.product===c).map(r=>r.price));
+      const diff=sA&&cA?((sA-cA)/cA*100):null;
+      return `<div class="vs-row"><div class="vs-tags">${ptag(s)}<span style="font-size:11px;color:var(--muted);font-weight:600">vs</span>${ptag(c)}</div>
+        <div style="text-align:right"><div class="vs-pct" style="color:${diff!==null&&diff<0?'var(--green)':diff!==null&&diff>0?'var(--red)':'var(--muted)'}">${diff!==null?`${diff>=0?'+':''}${diff.toFixed(1)}%`:'—'}</div>
+        <div style="font-size:10px;color:${diff!==null&&diff<0?'var(--green)':diff!==null&&diff>0?'var(--red)':'var(--muted)'}">${diff!==null?(diff<0?'Sika más barato':'Sika más caro'):'Sin datos'}</div></div></div>`;
+    }).join('')).join('');
+  }
+
+  // Line chart
+  const allProds=[...cfg.sika,...cfg.comp];
+  const chartEl=document.getElementById(`${catId}Line`);
+  if(chartEl){
+    destroyChart(`${catId}Line`);
+    charts[`${catId}Line`]=new Chart(chartEl,{type:'line',data:{labels:dates,datasets:allProds.map(p=>({
+      label:PNAMES[p],borderColor:PCOLORS[p],backgroundColor:PCOLORS[p]+'15',
+      borderWidth:cfg.sika.includes(p)?3:2,borderDash:cfg.comp.includes(p)?[5,3]:[],
+      pointRadius:3,fill:cfg.sika.includes(p),tension:0.4,spanGaps:true,
+      data:dates.map(d=>{const pr=allData.filter(r=>r.date===d&&r.product===p).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):null;})
+    }))},options:CO});
+  }
 }
 
-function renderBrandKpis(){
+function renderBarList(products, containerId){
   const today=todayRows();
-  document.getElementById('brandKpis').innerHTML=['Teroson','Soudal','Quiadsa','Pattex'].map(brand=>{
-    const prods=COMP_P.filter(p=>PBRANDS[p]===brand);
-    const prices=today.filter(r=>prods.includes(r.product)).map(r=>r.price);
-    const a=prices.length?avg(prices):null,mn=prices.length?Math.min(...prices):null;
-    return `<div class="card" style="margin-bottom:0;border-top:4px solid ${BCOLORS[brand]}"><div class="card-header">${bpill(brand)}</div><div style="font-size:28px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-1px">${a?a.toFixed(2)+' €':'—'}</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Media hoy · Min: ${mn?mn.toFixed(2)+' €':'—'}</div><div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">${prods.map(p=>ptag(p)).join('')}</div></div>`;
-  }).join('');
-}
-
-function renderCompTable(){
-  const last=lastDate();
-  const today=allData.filter(r=>r.date===last&&COMP_P.includes(r.product)).sort((a,b)=>a.product.localeCompare(b.product)||a.price-b.price);
-  document.getElementById('compTableBody').innerHTML=today.map(r=>`<tr><td>${bpill(PBRANDS[r.product]||'?')}</td><td>${ptag(r.product)}</td><td style="font-weight:500">${r.store}</td><td><span class="price-cell">${r.price.toFixed(2)} €</span></td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${hist7(r.product)?hist7(r.product).toFixed(2)+' €':'—'}</td><td>${pctSpan(r.price,hist7(r.product))}</td><td><a href="${r.url}" target="_blank" style="color:#2563EB;font-size:12px;text-decoration:none">Ver →</a></td></tr>`).join('');
-}
-
-function renderCompDonut(){
-  const today=todayRows();
-  const brands=['Teroson','Soudal','Quiadsa','Pattex'];
-  const counts=brands.map(b=>today.filter(r=>PBRANDS[r.product]===b).length);
-  destroyChart('compDonut');
-  charts.compDonut=new Chart(document.getElementById('compDonut'),{type:'doughnut',data:{labels:brands,datasets:[{data:counts,backgroundColor:brands.map(b=>BCOLORS[b]),borderWidth:3,borderColor:'#fff',hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{color:'#7C7C7C',font:{size:12,family:'Inter'},boxWidth:12,padding:14}}}}});
-}
-
-function renderBrandBar(){
-  const today=todayRows();
-  const brands=['Teroson','Soudal','Quiadsa','Pattex'];
-  const avgs=brands.map(b=>{const pr=today.filter(r=>PBRANDS[r.product]===b).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):0;});
-  destroyChart('brandBar');
-  charts.brandBar=new Chart(document.getElementById('brandBarChart'),{type:'bar',data:{labels:brands,datasets:[{label:'Media hoy (€)',data:avgs,backgroundColor:brands.map(b=>BCOLORS[b]+'CC'),borderColor:brands.map(b=>BCOLORS[b]),borderWidth:2,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw?.toFixed(2)} €`}}},scales:{x:{ticks:{color:'#7C7C7C'},grid:{display:false}},y:{ticks:{color:'#7C7C7C',callback:v=>v+'€'},grid:{color:'#E0E0DC'}}}}});
+  const items=products.map(p=>{const pr=today.filter(r=>r.product===p).map(r=>r.price);return{p,avg:pr.length?avg(pr):0,count:pr.length};}).filter(i=>i.avg>0);
+  const maxA=Math.max(...items.map(i=>i.avg),1);
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  el.innerHTML=items.map(i=>`<div><div class="bar-meta"><span class="bar-name">${PNAMES[i.p]}</span><span class="bar-val" style="color:${PCOLORS[i.p]==='#E6B000'?'#7A5C00':PCOLORS[i.p]}">${i.avg.toFixed(2)} €</span></div><div class="bar-track"><div class="bar-fill" style="width:${(i.avg/maxA*100).toFixed(1)}%;background:${PCOLORS[i.p]}"></div></div><div style="font-size:10px;color:var(--muted);margin-top:3px">${i.count} tiendas</div></div>`).join('')||'<div style="color:var(--muted);font-size:13px">Sin datos hoy</div>';
 }
 
 function renderCompareBar(){
@@ -437,36 +591,42 @@ function renderCompareBar(){
   const prods=ALL_P.filter(p=>today.some(r=>r.product===p));
   const avgs=prods.map(p=>{const pr=today.filter(r=>r.product===p).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):0;});
   destroyChart('compareBar');
-  charts.compareBar=new Chart(document.getElementById('compareBarChart'),{type:'bar',data:{labels:prods.map(p=>PNAMES[p]||p),datasets:[{label:'Precio medio hoy (€)',data:avgs,backgroundColor:prods.map(p=>PCOLORS[p]+'CC'),borderColor:prods.map(p=>PCOLORS[p]),borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw?.toFixed(2)} €`}}},scales:{x:{ticks:{color:'#7C7C7C',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#7C7C7C',callback:v=>v+'€'},grid:{color:'#E0E0DC'}}}}});
+  charts.compareBar=new Chart(document.getElementById('compareBarChart'),{type:'bar',data:{labels:prods.map(p=>PNAMES[p]||p),datasets:[{data:avgs,backgroundColor:prods.map(p=>PCOLORS[p]+'CC'),borderColor:prods.map(p=>PCOLORS[p]),borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw?.toFixed(2)} €`}}},scales:{x:{ticks:{color:'#7C7C7C',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#7C7C7C',callback:v=>v+'€'},grid:{color:'#E0E0DC'}}}}});
 }
 
-function renderVs(){
+function renderVsGlobal(){
   const today=todayRows();
-  function vsHtml(sp,cp){return sp.map(s=>cp.map(c=>{const sA=getAvg(s,today),cA=getAvg(c,today);const diff=sA&&cA?((sA-cA)/cA*100):null;return `<div class="vs-row"><div class="vs-tags">${ptag(s)}<span class="vs-sep">vs</span>${ptag(c)}</div><div style="text-align:right"><div class="vs-pct" style="color:${diff!==null&&diff<0?'var(--green)':diff!==null&&diff>0?'var(--red)':'var(--muted)'}">${diff!==null?`${diff>=0?'+':''}${diff.toFixed(1)}%`:'—'}</div><div style="font-size:10px;color:${diff!==null&&diff<0?'var(--green)':diff!==null&&diff>0?'var(--red)':'var(--muted)'}">${diff!==null?(diff<0?'Sika más barato':'Sika más caro'):'Sin datos'}</div></div></div>`;}).join('')).join('');}
-  document.getElementById('vsT').innerHTML=vsHtml(SIKA_P,['T930','T939']);
-  document.getElementById('vsS').innerHTML=vsHtml(SIKA_P,['SF45','SS240']);
-  document.getElementById('vsP').innerHTML=vsHtml(SIKA_P,['SP101']);
-  document.getElementById('vsQ').innerHTML=vsHtml(SIKA_P,['QT']);
+  Object.entries(CATS).forEach(([cat,cfg])=>{
+    const el=document.getElementById(`vs${cat}`);
+    if(!el)return;
+    el.innerHTML=cfg.sika.map(s=>cfg.comp.map(c=>{
+      const sA=avg(today.filter(r=>r.product===s).map(r=>r.price));
+      const cA=avg(today.filter(r=>r.product===c).map(r=>r.price));
+      const diff=sA&&cA?((sA-cA)/cA*100):null;
+      return `<div class="vs-row"><div class="vs-tags">${ptag(s)}<span style="font-size:11px;color:var(--muted)">vs</span>${ptag(c)}</div><div style="text-align:right"><div class="vs-pct" style="color:${diff!==null&&diff<0?'var(--green)':diff!==null&&diff>0?'var(--red)':'var(--muted)'}">${diff!==null?`${diff>=0?'+':''}${diff.toFixed(1)}%`:'—'}</div><div style="font-size:10px;color:${diff!==null&&diff<0?'var(--green)':diff!==null&&diff>0?'var(--red)':'var(--muted)'}">${diff!==null?(diff<0?'Sika más barato':'Sika más caro'):'Sin datos'}</div></div></div>`;
+    }).join('')).join('');
+  });
 }
 
 function renderMarketPos(){
   const today=todayRows();
   const items=ALL_P.map(p=>{const pr=today.filter(r=>r.product===p).map(r=>r.price);return{p,avg:pr.length?avg(pr):null};}).filter(i=>i.avg).sort((a,b)=>a.avg-b.avg);
   const maxA=Math.max(...items.map(i=>i.avg));
-  document.getElementById('marketPos').innerHTML=`<div class="bar-list">${items.map((i,idx)=>`<div class="mkt-row"><div class="mkt-meta"><div class="mkt-left"><span class="rank-badge ${idx===0?'rank-1':''}">${idx+1}</span>${ptag(i.p)}<span style="font-size:12px;color:var(--muted)">${PNAMES[i.p]}</span>${bpill(PBRANDS[i.p]||'?')}</div><span class="mkt-price">${i.avg.toFixed(2)} €</span></div><div class="bar-track"><div class="bar-fill" style="width:${(i.avg/maxA*100).toFixed(1)}%;background:${PCOLORS[i.p]}"></div></div></div>`).join('')}</div>`;
+  const cat=p=>{for(const[c,cfg]of Object.entries(CATS)){if([...cfg.sika,...cfg.comp].includes(p))return c;}return '';};
+  document.getElementById('marketPos').innerHTML=`<div class="bar-list">${items.map((i,idx)=>`<div style="margin-bottom:12px"><div class="bar-meta"><div style="display:flex;align-items:center;gap:8px"><span class="rank-badge ${idx===0?'rank-1':''}">${idx+1}</span>${ptag(i.p)}<span style="font-size:12px;color:var(--muted)">${PNAMES[i.p]}</span>${bpill(PBRANDS[i.p]||'?')}${cat(i.p)?catBadge(cat(i.p)):''}</div><span style="font-family:'DM Mono',monospace;font-weight:700">${i.avg.toFixed(2)} €</span></div><div class="bar-track"><div class="bar-fill" style="width:${(i.avg/maxA*100).toFixed(1)}%;background:${PCOLORS[i.p]}"></div></div></div>`).join('')}</div>`;
 }
 
 function renderAllLine(){
   const dates=[...new Set(allData.map(r=>r.date))].sort();
   destroyChart('allLine');
-  charts.allLine=new Chart(document.getElementById('allLineChart'),{type:'line',data:{labels:dates,datasets:ALL_P.map(p=>({label:PNAMES[p],borderColor:PCOLORS[p],borderWidth:SIKA_P.includes(p)?3:2,borderDash:COMP_P.includes(p)?[6,3]:[],pointRadius:SIKA_P.includes(p)?4:2,fill:false,tension:0.4,spanGaps:true,data:dates.map(d=>{const pr=allData.filter(r=>r.date===d&&r.product===p).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):null;})}))},options:{...COPTS,plugins:{...COPTS.plugins,legend:{labels:{color:'#7C7C7C',font:{size:10,family:'Inter'},boxWidth:10,padding:8}}}}});
+  charts.allLine=new Chart(document.getElementById('allLineChart'),{type:'line',data:{labels:dates,datasets:ALL_P.map(p=>({label:PNAMES[p],borderColor:PCOLORS[p],borderWidth:SIKA_P.includes(p)?3:2,borderDash:COMP_P.includes(p)?[6,3]:[],pointRadius:SIKA_P.includes(p)?4:2,fill:false,tension:0.4,spanGaps:true,data:dates.map(d=>{const pr=allData.filter(r=>r.date===d&&r.product===p).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):null;})}))},options:{...CO,plugins:{...CO.plugins,legend:{labels:{color:'#7C7C7C',font:{size:10,family:'Inter'},boxWidth:10,padding:8}}}}});
 }
 
 function renderEvoCharts(){
   const prods=evoFilter==='all'?ALL_P:[evoFilter];
   const dates=[...new Set(allData.map(r=>r.date))].sort();
   destroyChart('evoLine');destroyChart('evoBar');
-  charts.evoLine=new Chart(document.getElementById('evoLineChart'),{type:'line',data:{labels:dates,datasets:prods.map(p=>({label:PNAMES[p],borderColor:PCOLORS[p],backgroundColor:PCOLORS[p]+'20',borderWidth:2.5,pointRadius:4,fill:true,tension:0.4,spanGaps:true,data:dates.map(d=>{const pr=allData.filter(r=>r.date===d&&r.product===p).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):null;})}))},options:COPTS});
+  charts.evoLine=new Chart(document.getElementById('evoLineChart'),{type:'line',data:{labels:dates,datasets:prods.map(p=>({label:PNAMES[p],borderColor:PCOLORS[p],backgroundColor:PCOLORS[p]+'20',borderWidth:2.5,pointRadius:4,fill:true,tension:0.4,spanGaps:true,data:dates.map(d=>{const pr=allData.filter(r=>r.date===d&&r.product===p).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):null;})}))},options:CO});
   const last14=dates.slice(-14);
   charts.evoBar=new Chart(document.getElementById('evoBarChart'),{type:'bar',data:{labels:last14,datasets:prods.map(p=>({label:PNAMES[p],backgroundColor:PCOLORS[p]+'CC',borderColor:PCOLORS[p],borderWidth:1,borderRadius:5,data:last14.map(d=>{const pr=allData.filter(r=>r.date===d&&r.product===p).map(r=>r.price);return pr.length?+avg(pr).toFixed(2):null;})}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7C7C7C',font:{size:11,family:'Inter'},boxWidth:12}}},scales:{x:{ticks:{color:'#7C7C7C',font:{size:10}},grid:{color:'#E0E0DC'}},y:{ticks:{color:'#7C7C7C',callback:v=>v+'€'},grid:{color:'#E0E0DC'}}}}});
 }
@@ -480,11 +640,12 @@ function setEvo(p){
   renderEvoCharts();
 }
 
-const VIEWS=['resumen','sika','competencia','comparativa','evolucion'];
+const VIEWS=['resumen','caravanas','marino','general','comparativa','evolucion'];
 function showView(v){
   VIEWS.forEach(x=>{
     document.getElementById(`view-${x}`).style.display=x===v?'block':'none';
-    document.getElementById(`tab-${x}`).classList.toggle('active',x===v);
+    const tab=document.getElementById(`tab-${x}`);
+    if(tab)tab.classList.toggle('active',x===v);
   });
 }
 
