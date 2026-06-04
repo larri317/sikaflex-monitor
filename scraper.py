@@ -116,7 +116,14 @@ STORES = [
         "store": "Amazon BP795 blanco",
         "url": "https://www.amazon.es/Bostik-Poliuretano-profesional-interiores-exteriores/dp/B09TTD2PMP",
         "product": "BP795", "brand": "Bostik", "category": "Caravanas",
-        "selectors": [".a-price .a-offscreen","span.a-price-whole","#priceblock_ourprice"],
+        # FIX: selectores más específicos para Amazon, en orden de fiabilidad
+        "selectors": [
+            "#corePrice_feature_div .a-offscreen",
+            "#apex_offerDisplay_desktop .a-offscreen",
+            ".a-price .a-offscreen",
+            "span.a-price-whole",
+            "#priceblock_ourprice",
+        ],
     },
     {
         "store": "ModregoHogar BP795",
@@ -226,7 +233,14 @@ STORES = [
         "store": "Amazon BP795 marino",
         "url": "https://www.amazon.es/Bostik-Poliuretano-profesional-interiores-exteriores/dp/B09TTD2PMP",
         "product": "BP795", "brand": "Bostik", "category": "Marino",
-        "selectors": [".a-price .a-offscreen","span.a-price-whole","#priceblock_ourprice"],
+        # FIX: selectores más específicos para Amazon
+        "selectors": [
+            "#corePrice_feature_div .a-offscreen",
+            "#apex_offerDisplay_desktop .a-offscreen",
+            ".a-price .a-offscreen",
+            "span.a-price-whole",
+            "#priceblock_ourprice",
+        ],
     },
 
     # ════════════════════════════════════════════
@@ -294,7 +308,14 @@ STORES = [
         "store": "Amazon SP101",
         "url": "https://www.amazon.es/Pattex-Sella-silicona-eficacia-fungicida/dp/B014WLHFL4",
         "product": "SP101", "brand": "Pattex", "category": "General",
-        "selectors": [".a-price .a-offscreen","span.a-price-whole","#priceblock_ourprice"],
+        # FIX: selectores más específicos para Amazon
+        "selectors": [
+            "#corePrice_feature_div .a-offscreen",
+            "#apex_offerDisplay_desktop .a-offscreen",
+            ".a-price .a-offscreen",
+            "span.a-price-whole",
+            "#priceblock_ourprice",
+        ],
     },
     {
         "store": "Ventigo SS240",
@@ -306,23 +327,26 @@ STORES = [
 
 
 def _extract_price_from_text(text: str, min_price: float = 3.0, max_price: float = 200.0) -> Optional[float]:
+    """
+    Extrae precios de un texto. Devuelve el PRIMERO encontrado dentro del rango,
+    no el mínimo, para evitar coger precios de productos relacionados o envío.
+    """
     patterns = [
         r"(\d{1,4}[.,]\d{2})\s*€",
         r"€\s*(\d{1,4}[.,]\d{2})",
         r"(\d{1,4}[.,]\d{2})",
     ]
-    candidates = []
     for pat in patterns:
         for m in re.finditer(pat, text.strip()):
             raw = m.group(1).replace(".", "").replace(",", ".")
             try:
                 val = float(raw)
                 if min_price <= val <= max_price:
-                    candidates.append(val)
+                    # FIX: devolver el primer precio válido, no el mínimo
+                    return val
             except ValueError:
                 continue
-    # Devolver el precio más bajo dentro del rango válido
-    return min(candidates) if candidates else None
+    return None
 
 
 # Rangos de precios válidos por producto (min, max) en euros
@@ -343,6 +367,23 @@ PRICE_RANGES = {
     "3M4200": (12, 70),
 }
 
+# Contenedores donde buscar el precio en el fallback (de más específico a más general)
+# Se busca solo dentro de estos contenedores, nunca en toda la página
+FALLBACK_CONTAINERS = [
+    "[id*='product-detail']",
+    "[class*='product-detail']",
+    "[id*='product-info']",
+    "[class*='product-info']",
+    "[class*='product-main']",
+    "[class*='product-summary']",
+    "[id*='main-product']",
+    "article.product",
+    "div.product",
+    "main",
+    "#content",
+    "#main",
+]
+
 
 def _fetch_html(url: str, retries: int = 3) -> Optional[str]:
     for attempt in range(retries):
@@ -357,9 +398,6 @@ def _fetch_html(url: str, retries: int = 3) -> Optional[str]:
     return None
 
 
-    # ── Francobordo 3M5200 eliminado (precio incorrecto) ──
-    # Usar Waveinn y A.Alvarez en su lugar
-
 def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
     html = _fetch_html(store_cfg["url"])
     if not html:
@@ -371,13 +409,14 @@ def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
 
     soup = BeautifulSoup(html, "html.parser")
 
+    # ── 1. Intentar selectores específicos de la tienda ──
     for selector in store_cfg.get("selectors", []):
         el = soup.select_one(selector)
         if el:
             raw = el.get("content") or el.get("data-price") or el.get_text()
             price = _extract_price_from_text(raw, min_p, max_p)
             if price:
-                logger.info(f"✓ {store_cfg['store']} [{product}] → {price}€")
+                logger.info(f"✓ {store_cfg['store']} [{product}] → {price}€  (selector: {selector})")
                 return PriceResult(
                     store=store_cfg["store"],
                     url=store_cfg["url"],
@@ -387,21 +426,35 @@ def scrape_store(store_cfg: dict) -> Optional[PriceResult]:
                     price=price,
                 )
 
-    # Fallback texto completo con rango de precios del producto
-    full_text = soup.get_text()
-    price = _extract_price_from_text(full_text, min_p, max_p)
-    if price:
-        logger.info(f"✓ {store_cfg['store']} [{product}] → {price}€ (fallback)")
-        return PriceResult(
-            store=store_cfg["store"],
-            url=store_cfg["url"],
-            product=product,
-            brand=store_cfg.get("brand", "Sika"),
-            category=store_cfg.get("category", "General"),
-            price=price,
-        )
+    # ── 2. Fallback: buscar en contenedores del producto principal ──
+    #    FIX: nunca buscar en toda la página — solo en zonas conocidas del producto
+    logger.warning(
+        f"⚠ {store_cfg['store']} [{product}]: ningún selector funcionó, "
+        f"intentando fallback por contenedor"
+    )
+    for container_selector in FALLBACK_CONTAINERS:
+        container = soup.select_one(container_selector)
+        if container:
+            price = _extract_price_from_text(container.get_text(), min_p, max_p)
+            if price:
+                logger.info(
+                    f"✓ {store_cfg['store']} [{product}] → {price}€  "
+                    f"(fallback contenedor: {container_selector})"
+                )
+                return PriceResult(
+                    store=store_cfg["store"],
+                    url=store_cfg["url"],
+                    product=product,
+                    brand=store_cfg.get("brand", "Sika"),
+                    category=store_cfg.get("category", "General"),
+                    price=price,
+                )
 
-    logger.warning(f"✗ No se encontró precio válido en {store_cfg['store']} (rango {min_p}-{max_p}€)")
+    # ── 3. Sin precio encontrado ──
+    logger.warning(
+        f"✗ {store_cfg['store']} [{product}]: sin precio válido "
+        f"(rango {min_p}–{max_p}€). Revisar selectores o estructura de la página."
+    )
     return None
 
 
